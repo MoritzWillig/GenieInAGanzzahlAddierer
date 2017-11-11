@@ -1,12 +1,15 @@
-from ..helpers import AbstractMethod
+from ..helpers.AbstractMethod import AbstractMethod
 
 class DataInstance(object):
 
     def __init__(self, type):
-        None
+        self._type = type
+
+    def get_type(self):
+        return self._type
 
     @AbstractMethod
-    def get_type(self):
+    def get_value(self):
         None
 
     @AbstractMethod
@@ -14,5 +17,5 @@ class DataInstance(object):
         None
 
     @AbstractMethod
-    def deserialize(self):
+    def deserialize(self, str):
         None

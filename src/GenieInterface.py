@@ -1,10 +1,10 @@
-from .helpers import AbstractMethod
+from .helpers.AbstractMethod import AbstractMethod
 
 
 class GenieInterface(object):
 
-    def __init__(self):
-        None
+    def __init__(self, configuration):
+        self._configuration = configuration
 
     @AbstractMethod
     def get_inputs(self):

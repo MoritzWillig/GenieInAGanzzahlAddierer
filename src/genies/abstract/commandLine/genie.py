@@ -1,11 +1,13 @@
-from ....src import GenieInterface
-from ....src.helpers import AbstractMethod
+from src.GenieInterface import  GenieInterface
+from src.helpers.AbstractMethod import AbstractMethod
 from subprocess import call
+from src.datatype.Boolean import BooleanType
+from src.datatype.Int import IntType
 
 class CommandLineGenie(GenieInterface):
 
     def __init__(self, configuration):
-        self._configuration = configuration
+        super(CommandLineGenie, self).__init__(configuration)
 
     @AbstractMethod
     def get_inputs(self):
@@ -23,16 +25,17 @@ class CommandLineGenie(GenieInterface):
 
         result = arg.text
 
-        if type(result) != "string":
+        if isinstance(result,str):
             raise Exception("evaluated argument is no string")
 
         return result
 
     def _process_input_argument(self, arg, inputs):
         id = arg.id
-        if type(id) == "string":
+        if isinstance(id, str):
             raise Exception("input argument id is not a string")
         type = arg.type
+        input = inputs.select_single_by_attribute("id", id)
 
         if type == "plain":
             raise Exception("plain is no input type")
@@ -43,19 +46,23 @@ class CommandLineGenie(GenieInterface):
         elif type == "image_folder":
             raise Exception("image_folder is no input type")
         elif type == "int_range":
-            raise Exception("Not implemented")
+            # result of an int_range is an int
+            # FIXME modify IntType to allow range constraints
+            if isinstance(input.get_type(), IntType):
+                raise Exception("Input is not Int")
+            arg.type = "plain"
+            arg.text = input.serialize()
         elif type == "boolean":
-            input = inputs.select_single_by_attribute("id",id)
-            if input.get_type() != Boolean:
+            if isinstance(input.get_type(), BooleanType):
                 raise Exception("Input is not Boolean")
             arg.type = "plain"
-            arg.text = "True" if input.get_value() else "False"
+            arg.text = input.serialize()
         else:
             raise Exception("Unknown argument type")
 
     def _process_output_argument(self, arg, inputs):
         id = arg.id
-        if type(id) == "string":
+        if isinstance(id,str):
             raise Exception("input argument id is not a string")
         type = arg.type
 
@@ -70,7 +77,7 @@ class CommandLineGenie(GenieInterface):
             # set value to image path
             raise Exception("Not implemented")
         elif type == "int_range":
-            raise Exception("plain is no output type")
+            raise Exception("int_range is no output type")
         elif type == "boolean":
             raise Exception("plain is no output type")
         else:
@@ -85,7 +92,7 @@ class CommandLineGenie(GenieInterface):
         map(lambda arg: self._process_output_argument(arg, inputs), outputs_)
 
         str_arguments = map(lambda arg: self._argument_to_string(arg), wc)
-        return " ".join(str_arguments)
+        return str_arguments
 
 
     def serve(self, input):

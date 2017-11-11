@@ -1,4 +1,4 @@
-from ..helpers import AbstractMethod
+from ..helpers.AbstractMethod import AbstractMethod
 
 class DataType(object):
 
