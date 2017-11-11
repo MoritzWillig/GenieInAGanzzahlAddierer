@@ -1,5 +1,5 @@
 {
-  "info": "morpher.py interface"
+  "info": "morpher.py interface",
   "arguments": [
     {
       "type": "plain",
@@ -10,15 +10,17 @@
       "text": "--src"
     },
     {
+      "id": "source",
       "type": "image",
       "semantic": "in",
-      "caption": "Source",
+      "caption": "Source"
     },
     {
       "type": "image",
       "text": "--dest"
     },
     {
+      "id": "destination",
       "type": "image",
       "semantic": "in",
       "caption": "destination"
@@ -28,8 +30,8 @@
       "text": "--out_frames"
     },
     {
-      "type": "folder",
       "type": "image_folder",
+      "semantic": "out",
       "caption": "Results"
     },
     {
@@ -38,10 +40,11 @@
     },
     {
       "type": "int_range",
+      "semantic": "in",
       "start": 1,
       "end": 30,
       "default": 10,
-      "caption": "Number of frames"
+      "caption": "Number of images"
     },
     {
       "type": "plain",
@@ -49,6 +52,7 @@
     },
     {
       "type": "boolean",
+      "semantic": "in",
       "default": true,
       "caption": "Keep alpha"
     }

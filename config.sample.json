@@ -1,3 +1,4 @@
 {
-  genies: ["demo"]
+  "genies": ["demo"],
+  "temp": "./temp"
 }
