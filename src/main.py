@@ -2,6 +2,9 @@ from flask import Flask, send_from_directory
 import json
 import importlib
 
+from src.fileManager.TempFileManager import TempFileManager
+from src.datatypes.TypeSystem import TypeSystem
+
 class Genie(object):
     def __init__(self, name):
         self._loadConfig()
@@ -10,7 +13,10 @@ class Genie(object):
         for genie_str in self._config['genies']:
             genieName, genie = self._load_genie(genie_str)
             self.registerGenie(name, genie(self._config))
-        temp = self._config["temp"] # "./temp"
+
+        self._tempFileManager = TempFileManager(self._config["temp"])
+        self._typeSystem = TypeSystem()
+
 
 
         self.app = Flask(name, static_url_path='')

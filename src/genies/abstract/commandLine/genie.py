@@ -1,8 +1,8 @@
 from src.GenieInterface import  GenieInterface
 from src.helpers.AbstractMethod import AbstractMethod
 from subprocess import call
-from src.datatype.Boolean import BooleanType
-from src.datatype.Int import IntType
+from src.datatypes.Boolean import BooleanType
+from src.datatypes.Int import IntType
 
 class CommandLineGenie(GenieInterface):
 

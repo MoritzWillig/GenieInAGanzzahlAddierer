@@ -1,8 +1,9 @@
 # Project specific
-config.json
 extern
-
 .idea
+
+config.json
+.temp
 
 
 # Byte-compiled / optimized / DLL files
