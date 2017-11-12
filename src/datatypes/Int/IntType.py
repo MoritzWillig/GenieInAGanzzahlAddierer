@@ -1,11 +1,12 @@
-from .. import DataType
-from . import IntInstance
+from ..DataType import DataType
+from .IntInstance import IntInstance
 
 
 class IntType(DataType):
 
     def __init__(self):
-        None
+        super().__init__()
+        pass
 
     def get_name(self):
         return "integer"

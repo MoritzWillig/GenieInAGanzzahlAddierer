@@ -1,4 +1,4 @@
-from .. import DataInstance
+from ..DataInstance import DataInstance
 
 
 class IntInstance(DataInstance):

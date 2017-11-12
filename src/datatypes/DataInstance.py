@@ -1,5 +1,6 @@
 from ..helpers.AbstractMethod import AbstractMethod
 
+
 class DataInstance(object):
 
     def __init__(self, type):
@@ -10,12 +11,15 @@ class DataInstance(object):
 
     @AbstractMethod
     def get_value(self):
-        None
+        pass
 
     @AbstractMethod
     def serialize(self):
-        None
+        pass
 
     @AbstractMethod
     def deserialize(self, str):
-        None
+        pass
+
+    def destroy(self):
+        pass

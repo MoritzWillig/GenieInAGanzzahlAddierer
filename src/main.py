@@ -4,6 +4,9 @@ import importlib
 
 from src.fileManager.TempFileManager import TempFileManager
 from src.datatypes.TypeSystem import TypeSystem
+from src.datatypes.Int.IntType import IntType
+from src.datatypes.Boolean.BooleanType import BooleanType
+from src.datatypes.Image.ImageType import ImageType
 
 class Genie(object):
     def __init__(self, name):
@@ -15,9 +18,8 @@ class Genie(object):
             self.registerGenie(name, genie(self._config))
 
         self._tempFileManager = TempFileManager(self._config["temp"])
-        self._typeSystem = TypeSystem()
 
-
+        self._setup_type_system()
 
         self.app = Flask(name, static_url_path='')
 
@@ -45,6 +47,12 @@ class Genie(object):
             config_str = f.read()
         self._config = json.loads(config_str)
         self._config['__master']=self
+
+    def _setup_type_system(self):
+        self._typeSystem = TypeSystem()
+        self._typeSystem.register_type("int", IntType())
+        self._typeSystem.register_type("boolean", BooleanType())
+        self._typeSystem.register_type("image", ImageType(self._tempFileManager))
 
     def registerGenie(self, name, genie):
         self._genies[name] = genie

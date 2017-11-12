@@ -3,12 +3,12 @@ from ..helpers.AbstractMethod import AbstractMethod
 class DataType(object):
 
     def __init__(self):
-        None
+        pass
 
     @AbstractMethod
     def get_name(self):
-        None
+        pass
 
     @AbstractMethod
     def create_instance(self):
-        None
+        pass

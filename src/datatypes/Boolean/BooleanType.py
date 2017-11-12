@@ -1,10 +1,12 @@
-from .. import DataType
-from . import BooleanInstance
+from ..DataType import DataType
+from .BooleanInstance import BooleanInstance
+
 
 class BooleanType(DataType):
 
     def __init__(self):
-        None
+        super().__init__()
+        pass
 
     def get_name(self):
         return "boolean"
