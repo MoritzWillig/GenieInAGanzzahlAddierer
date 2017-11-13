@@ -35,6 +35,10 @@ class Genie(object):
         def serve_static(path):
             return send_from_directory('content', path)
 
+        @self.app.route('/images/<path:path>')
+        def send_images(path):
+            return send_from_directory('imgdb', path)
+
     def _load_genie(self, name):
         path = ".genies."+name+".genie"
         module = importlib.import_module(path, __package__)
