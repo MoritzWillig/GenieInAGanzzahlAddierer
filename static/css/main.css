@@ -87,6 +87,7 @@ body {
 
   .imgcompare .imgwrapper .toolbar i {
     float: right;
+    cursor: pointer;
   }
 
   .imgcompare .imgwrapper img {

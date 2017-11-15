@@ -51,18 +51,18 @@ class Genie(object):
                 else:
                     now = datetime.now()
                     filename = os.path.join("%s.%s" % (now.strftime("%Y-%m-%d-%H-%M-%S-%f"), file.filename.rsplit('.', 1)[1]))
-                    filepath = os.path.join('imgdb', filename)
+                    filepath = os.path.join('uploads', filename)
                     file.save(filepath)
 
-            return jsonify({"success":True, "filename": filename})
+            return jsonify({"success": True, "filename": filename})
 
         def valid_file_extension(filename):
             ALLOWED_EXTENSIONS = ['png', 'jpg', 'jpeg', 'gif']
             return '.' in filename and filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
 
-        @self.app.route('/images/<path:path>')
+        @self.app.route('/uploads/<path:path>')
         def send_images(path):
-            return send_from_directory('imgdb', path)
+            return send_from_directory('uploads', path)
 
     def _load_genie(self, name):
         path = ".genies."+name+".genie"

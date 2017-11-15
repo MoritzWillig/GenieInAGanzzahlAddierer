@@ -1,3 +1,6 @@
+var $ = function(q) { return document.querySelector(q); };
+
+// hasClass, addClass and removeClass polyfills
 Element.prototype.hasClass = Element.prototype.hasClass || function ( className ) {
   return (' ' + this.className + ' ').indexOf(' ' + className + '') !== -1;
 };
@@ -10,12 +13,21 @@ Element.prototype.removeClass = Element.prototype.removeClass || function ( clas
   return this;
 };
 
-function initFileUpload(filedropSelector) {
-  console.log(filedropSelector);
-  var filedrop = document.querySelector(filedropSelector);
-  var progressbar = filedrop.querySelector('.uploadprogress');
+
+// initFileUpload adds drag'n'drop and click handlers to the element selected
+// by the given css selector `filedropSelector`
+function initFileUpload(filedropSelector, onsuccess) {
+  var filedrop = $(filedropSelector);
+  if (!filedrop) {
+    console.error('Selector did not match any element:', filedropSelector);
+    return;
+  }
+
+  var progressbar = filedrop.querySelector('.progressbar');
+  if (!progressbar) console.info('No `.progressbar` found inside', filedrop);
+
   var filechooser = filedrop.querySelector('.filechooser');
-  console.log(filedrop, progressbar, filechooser);
+  if (!filechooser) console.info('No `.filechooser` found inside', filedrop);
 
   var acceptedTypes = {
     'image/png': true,
@@ -24,61 +36,38 @@ function initFileUpload(filedropSelector) {
   };
 
   var browserSupport = {
-    filereader: typeof FileReader != 'undefined',
     draggable: 'draggable' in document.createElement('span'),
     formdata: !!window.FormData,
     progress: "upload" in new XMLHttpRequest()
   };
 
-  function previewfile(file) {
-    if (browserSupport.filereader === true && acceptedTypes[file.type] === true) {
-      var reader = new FileReader();
-      reader.onload = function (event) {
-        var image = new Image();
-        image.src = event.target.result;
-        image.width = 250; // a fake resize
-        filedrop.appendChild(image);
+  // upload the files
+  function uploadFiles(files) {
+    var formData = browserSupport.formdata ? new FormData() : null;
+    for (var i = 0; i < files.length; i++) {
+      if (browserSupport.formdata) formData.append('file', files[i]);
+    }
+
+    if (browserSupport.formdata) {
+      var xhr = new XMLHttpRequest();
+      xhr.open('POST', '/upload');
+      xhr.onload = function(e) {
+        if (progressbar) progressbar.value = progressbar.innerHTML = 100;
+        var response = JSON.parse(this.response);
+        if (response.success) onsuccess(response.filename);
       };
 
-      reader.readAsDataURL(file);
-    }
-  }
-
-  function readfiles(files) {
-      var formData = browserSupport.formdata ? new FormData() : null;
-      for (var i = 0; i < files.length; i++) {
-        if (browserSupport.formdata) formData.append('file', files[i]);
-        //previewfile(files[i]);
-      }
-
-      // upload the files
-      if (browserSupport.formdata) {
-        var xhr = new XMLHttpRequest();
-        xhr.open('POST', '/upload');
-        xhr.onload = function(e) {
-          progressbar.value = progressbar.innerHTML = 100;
-          showImage(JSON.parse(e.target.response).filename);
+      if (browserSupport.progress) {
+        xhr.upload.onprogress = function (event) {
+          if (event.lengthComputable) {
+            var progress = (event.loaded / event.total * 100 | 0);
+            if (progressbar) progressbar.value = progressbar.innerHTML = progress;
+          }
         };
-
-        if (browserSupport.progress) {
-          xhr.upload.onprogress = function (event) {
-            if (event.lengthComputable) {
-              var progress = (event.loaded / event.total * 100 | 0);
-              progressbar.value = progressbar.innerHTML = progress;
-            }
-          };
-        }
-
-        xhr.send(formData);
       }
-  }
 
-  function showImage(filename) {
-    console.log(filename);
-    document.querySelector('.imgwrapper.left img').src = '/images/' + filename;
-    document.querySelector('.imgwrapper.left .toolbar span').innerText = filename;
-    document.querySelector('.imgwrapper.left').removeClass('hidden');
-    document.querySelector('.placeholder.left').addClass('hidden');
+      xhr.send(formData);
+    }
   }
 
   // add drag and drop events
@@ -88,13 +77,13 @@ function initFileUpload(filedropSelector) {
     filedrop.ondrop = function (e) {
       this.removeClass('hover');
       e.preventDefault();
-      readfiles(e.dataTransfer.files);
+      uploadFiles(e.dataTransfer.files);
     };
   }
 
   // add change event for filechooser
   filechooser.onchange = function () {
-    readfiles(this.files);
+    uploadFiles(this.files);
   };
 
   // open file chooser on click
@@ -103,4 +92,28 @@ function initFileUpload(filedropSelector) {
   };
 }
 
-initFileUpload('.placeholder.left');
+initFileUpload('.placeholder.left', function(filename) {
+  console.log(filename);
+  $('.imgwrapper.left img').src = '/uploads/' + filename;
+  $('.imgwrapper.left .toolbar span').innerText = filename;
+  $('.imgwrapper.left').removeClass('hidden');
+  $('.placeholder.left').addClass('hidden');
+});
+
+initFileUpload('.placeholder.right', function(filename) {
+  console.log(filename);
+  $('.imgwrapper.right img').src = '/uploads/' + filename;
+  $('.imgwrapper.right .toolbar span').innerText = filename;
+  $('.imgwrapper.right').removeClass('hidden');
+  $('.placeholder.right').addClass('hidden');
+});
+
+$('.imgwrapper.left .toolbar i').addEventListener('click', function() {
+  $('.imgwrapper.left').addClass('hidden');
+  $('.placeholder.left').removeClass('hidden');
+});
+
+$('.imgwrapper.right .toolbar i').addEventListener('click', function() {
+  $('.imgwrapper.right').addClass('hidden');
+  $('.placeholder.right').removeClass('hidden');
+});
