@@ -48,7 +48,6 @@ body {
   text-align: center;
 }
 
-.imgcompare .placeholder,
 .imgcompare .imgwrapper {
   margin: 1em 1em 0 1em;
 }
@@ -56,11 +55,16 @@ body {
 .imgcompare .placeholder {
   border: 3px dashed #ccc;
   display: block;
+  margin: 1em;
   padding: 20%;
   text-align: left;
   color: #444;
   cursor: pointer;
 }
+
+  .imgcompare .placeholder.hover {
+    border-color: #555;
+  }
 
   .imgcompare .placeholder i {
     float: left;
@@ -99,4 +103,8 @@ body {
   display: inline-block;
   width: 100%;
   padding: 1em;
+}
+
+.hidden {
+  display: none !important;
 }

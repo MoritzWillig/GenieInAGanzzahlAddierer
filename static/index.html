@@ -17,20 +17,27 @@
 
   <section class="imgcompare row">
     <section class="w6">
-      <div class="placeholder" class="left">
+      <div class="placeholder left">
         <i class="fa fa-picture-o" aria-hidden="true"></i>
         <span>Drop picture or click to select one from the gallerie.
+        <input type="file" class="filechooser hidden">
+        <progress class="uploadprogress hidden" max="100" value="0">0</progress>
       </div>
-      <div class="imgwrapper">
-        <img src="images/blue.png" class="left" style="display:none;">
+      <div class="imgwrapper left hidden">
+        <div class="toolbar"><span>blue.png</span><i class="fa fa-times" aria-hidden="true"></i></div>
+        <img src="images/blue.png" class="right">
       </div>
     </section>
 
     <section class="w6">
-      <div class="placeholder" class="right" style="display:none;">
+      <div class="placeholder right" style="">
+        <i class="fa fa-picture-o" aria-hidden="true"></i>
+        <span>Drop picture or click to select one from the gallerie.
+        <input type="file" class="filechooser hidden">
+        <progress class="uploadprogress hidden" max="100" value="0">0</progress>
       </div>
-      <div class="imgwrapper">
-        <div class="toolbar">red.png <i class="fa fa-times" aria-hidden="true"></i></div>
+      <div class="imgwrapper right hidden">
+        <div class="toolbar"><span>red.png</span><i class="fa fa-times" aria-hidden="true"></i></div>
         <img src="images/red.png" class="right">
       </div>
     </section>
@@ -40,5 +47,6 @@
   </section>
 
   <script src="vendor/jquery-3.2.1.min.js" type="text/javascript"></script>
+  <script src="js/main.js" type="text/javascript"></script>
 </body>
 </html>
