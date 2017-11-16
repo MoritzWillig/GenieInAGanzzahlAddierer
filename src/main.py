@@ -50,9 +50,7 @@ class Genie(object):
                     filename = self._tempFileManager.createTempFile()
                     filepath = self._tempFileManager.get_path_from_name(filename)
                     file.save(filepath)
-                    print("!",filename)
 
-            print(">>",filename)
             return jsonify({"success": True, "filename": filename})
 
         def valid_file_extension(filename):

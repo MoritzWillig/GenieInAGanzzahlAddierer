@@ -56,7 +56,8 @@ class TempFileManager(object):
         """
         name = self.reserveName()
         path = self.get_path_from_name(name)
-        with pathlib.Path(path).open("x") as _: pass
+        with pathlib.Path(path).open("x") as _:
+            pass
         return name
 
     def createTempFolder(self):
