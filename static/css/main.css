@@ -24,7 +24,7 @@ body {
   }
 
 .titlebar {
-  background: black;
+  background: #333;
   padding: 1em;
   color: #eee;
   box-shadow: 0 0 .5em #666;
@@ -33,15 +33,16 @@ body {
 }
 
   .titlebar .tabs .tab {
-    background: #333;
-    padding: .5em;
-    margin: 0;
-    border: 1px solid #333;
+    margin: .125em;
+    padding: .5em 1em;
+    background: #555;
+    border-radius: 2em;
+    cursor: pointer;
   }
 
   .titlebar .tabs .tab.active {
-    box-shadow: 0 0 .5em black inset;
-    background: #555;
+    box-shadow: 0 0 .125em #ccc inset;
+    background: #666;
   }
 
 .imgcompare {
@@ -105,6 +106,54 @@ body {
   width: 100%;
   padding: 1em;
 }
+
+.gallery {
+  position: absolute;
+  top: 6em;
+  right: 3em;
+  left: 3em;
+  background: #eee;
+  box-shadow: 0 0 1.5em #333;
+}
+
+  .gallery .header, .gallery .footer {
+    background: #333;
+    color: #eee;
+    padding: 1em;
+  }
+
+    .gallery .header i {
+      float: right;
+      cursor: pointer;
+    }
+
+  .gallery .content .imgwrapper {
+    display: inline-block;
+    width: 10em;
+    min-height: 3em;
+    border: 1px solid #ccc;
+    margin: .5em;
+    padding: .25em;
+    cursor: pointer;
+    text-align: center;
+    color: #333;
+    overflow: hidden;
+    font-size: 0.9em;
+  }
+
+    .gallery .content .imgwrapper img {
+      max-width: 100%;
+      max-height: 100%;
+    }
+
+  .gallery .footer {
+    text-align: right;
+  }
+
+    .gallery .footer button {
+      margin: auto .5em;
+      padding: .25em;
+    }
 
 .hidden {
   display: none !important;

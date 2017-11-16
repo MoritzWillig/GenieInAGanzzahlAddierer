@@ -3,6 +3,8 @@ from flask import Flask, send_from_directory, request, jsonify
 import importlib
 import json
 import os
+from os import listdir
+from os.path import isfile, join
 
 from src.fileManager.TempFileManager import TempFileManager
 from src.datatypes.TypeSystem import TypeSystem
@@ -35,10 +37,6 @@ class Genie(object):
         def serve_genie():
             raise Exception("Not implemented")
 
-        @self.app.route('/content/<path:path>')
-        def serve_static(path):
-            return send_from_directory('content', path)
-
         @self.app.route('/upload', methods=['POST'])
         def upload():
             if request.method != 'POST':
@@ -59,6 +57,10 @@ class Genie(object):
         def valid_file_extension(filename):
             ALLOWED_EXTENSIONS = ['png', 'jpg', 'jpeg', 'gif']
             return '.' in filename and filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
+
+        @self.app.route('/api/get/uploads.json')
+        def get_upload_list():
+            return(jsonify({'files': [f for f in listdir('uploads') if isfile(join('uploads', f))]}))
 
         @self.app.route('/uploads/<path:path>')
         def send_images(path):

@@ -117,3 +117,25 @@ $('.imgwrapper.right .toolbar i').addEventListener('click', function() {
   $('.imgwrapper.right').addClass('hidden');
   $('.placeholder.right').removeClass('hidden');
 });
+
+var xhr = new XMLHttpRequest();
+xhr.open('GET', '/api/get/uploads.json');
+xhr.onload = function(e) {
+  var response = JSON.parse(this.response);
+  console.log(response.files);
+  var gallery = $('.gallery .content');
+  gallery.innerText = '';
+  for (var i = 0; i < response.files.length; i++) {
+    var filename = response.files[i];
+    var imgwrapper = document.createElement('div');
+    imgwrapper.className = 'imgwrapper';
+    var img = document.createElement('img');
+    img.src = '/uploads/' + filename;
+    var span = document.createElement('span');
+    span.innerText = filename;
+    imgwrapper.appendChild(img);
+    imgwrapper.appendChild(span);
+    gallery.appendChild(imgwrapper);
+  }
+};
+xhr.send();
