@@ -22,7 +22,7 @@ class Genie(object):
             genieName, genie = self._load_genie(genie_str)
             self.registerGenie(name, genie(self._config))
 
-        self._tempFileManager = TempFileManager(self._config["temp"])
+        self._tempFileManager = TempFileManager(self._config["temp"], 8)
 
         self._setup_type_system()
 
@@ -47,11 +47,12 @@ class Genie(object):
                 if not file or not valid_file_extension(file.filename):
                     return jsonify({"success": False, "error": 'Invalid file type.'})
                 else:
-                    now = datetime.now()
-                    filename = os.path.join("%s.%s" % (now.strftime("%Y-%m-%d-%H-%M-%S-%f"), file.filename.rsplit('.', 1)[1]))
-                    filepath = os.path.join('uploads', filename)
+                    filename = self._tempFileManager.createTempFile()
+                    filepath = self._tempFileManager.get_path_from_name(filename)
                     file.save(filepath)
+                    print("!",filename)
 
+            print(">>",filename)
             return jsonify({"success": True, "filename": filename})
 
         def valid_file_extension(filename):
@@ -60,11 +61,13 @@ class Genie(object):
 
         @self.app.route('/api/get/uploads.json')
         def get_upload_list():
-            return(jsonify({'files': [f for f in listdir('uploads') if isfile(join('uploads', f))]}))
+            temp_dir = self._tempFileManager.get_temp_folder()
+            print(join(temp_dir, "x.jpg"))
+            return jsonify({'files': [f for f in listdir(temp_dir) if isfile(join(temp_dir, f))]})
 
         @self.app.route('/uploads/<path:path>')
         def send_images(path):
-            return send_from_directory('uploads', path)
+            return send_from_directory(self._tempFileManager.get_temp_folder(), path)
 
     def _load_genie(self, name):
         path = ".genies."+name+".genie"
