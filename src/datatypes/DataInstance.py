@@ -18,8 +18,5 @@ class DataInstance(object):
         pass
 
     @AbstractMethod
-    def deserialize(self, str):
-        pass
-
     def destroy(self):
         pass

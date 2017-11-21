@@ -9,14 +9,8 @@ class BooleanInstance(DataInstance):
     def get_value(self):
         return self._value
 
+    def set_value(self, value):
+        self._value = value
+
     def serialize(self):
         return str(self._value)
-
-    def deserialize(self, value_str):
-        if value_str == "True":
-            self._value = True
-        elif value_str == "False":
-            self._value = False
-        else:
-            raise Exception("Invalid boolean string")
-

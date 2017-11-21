@@ -6,9 +6,13 @@ class InstanceScope(object):
         self._instances = []
 
     def getInstance(self, name, args):
+        raise Exception("Not implemented")
         instance = self._typeSystem.get_type_by_name(name).create_instance()
         self._instances.append(instance)
         return instance
+
+    def addInstance(self, instance):
+        self._instances.append(instance)
 
     def destroy(self):
         exceptions = []

@@ -30,6 +30,7 @@
       "text": "--out_frames"
     },
     {
+      "id": "results",
       "type": "image_folder",
       "semantic": "out",
       "caption": "Results"
@@ -39,10 +40,11 @@
       "text": "--num"
     },
     {
-      "type": "int_range",
+      "id": "num_images",
+      "type": "int",
       "semantic": "in",
-      "start": 1,
-      "end": 30,
+      "min": 1,
+      "max": 30,
       "default": 10,
       "caption": "Number of images"
     },
@@ -51,6 +53,7 @@
       "text": "--alpha"
     },
     {
+      "id": "keep_alpha",
       "type": "boolean",
       "semantic": "in",
       "default": true,

@@ -10,9 +10,9 @@ class IntInstance(DataInstance):
     def get_value(self):
         return self._value
 
+    def set_value(self, value):
+        self._value = value
+
     def serialize(self):
         return str(self._value)
-
-    def deserialize(self, value_str):
-        self._value = int(value_str)
 

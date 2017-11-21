@@ -6,16 +6,18 @@ from src.datatypes.Int import IntType
 
 class CommandLineGenie(GenieInterface):
 
-    def __init__(self, configuration):
+    def __init__(self, configuration, additional):
         super(CommandLineGenie, self).__init__(configuration)
+
+        self._additional =
 
     @AbstractMethod
     def get_inputs(self):
-        return ["image", "image", "int"]
+        return {"input1": "image", "input2": "image", "param": "int"}
 
     @AbstractMethod
     def get_outputs(self):
-        return ["image", "image", "image"]
+        return {"output1": "image", "output2": "image", "output3": "int"}
 
     def _argument_to_string(self, arg):
         type = arg.type

@@ -11,10 +11,10 @@ class ImageInstance(DataInstance):
     def get_value(self):
         raise Exception("not implemented")
 
-    def serialize(self):
+    def set_value(self, value):
         raise Exception("not implemented")
 
-    def deserialize(self, value_str):
+    def serialize(self):
         raise Exception("not implemented")
 
     def destroy(self):
