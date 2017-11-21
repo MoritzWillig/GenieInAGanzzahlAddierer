@@ -4,12 +4,10 @@ from subprocess import call
 from src.datatypes.Boolean import BooleanType
 from src.datatypes.Int import IntType
 
-class CommandLineGenie(GenieInterface):
+class CommandlineGenie(GenieInterface):
 
     def __init__(self, configuration, additional):
-        super(CommandLineGenie, self).__init__(configuration)
-
-        self._additional =
+        super(CommandlineGenie, self).__init__(configuration, additional)
 
     @AbstractMethod
     def get_inputs(self):
@@ -27,7 +25,7 @@ class CommandLineGenie(GenieInterface):
 
         result = arg.text
 
-        if isinstance(result,str):
+        if isinstance(result, str):
             raise Exception("evaluated argument is no string")
 
         return result
@@ -96,8 +94,6 @@ class CommandLineGenie(GenieInterface):
         str_arguments = map(lambda arg: self._argument_to_string(arg), wc)
         return str_arguments
 
-
     def serve(self, input):
-        result = call(self._build_command_line(input))
-
-        send result here ...
+        # result = call(self._build_command_line(input))
+        return "Test"

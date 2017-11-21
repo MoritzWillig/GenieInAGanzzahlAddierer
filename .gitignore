@@ -6,6 +6,7 @@ config.json
 .temp
 
 uploads/*
+demo/results/*
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

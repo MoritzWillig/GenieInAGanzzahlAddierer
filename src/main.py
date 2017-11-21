@@ -16,14 +16,15 @@ class Genie(object):
     def __init__(self, name):
         self._loadConfig()
 
-        self._genies={}
+        self._genies = {}
 
         for genie_cfg in self._config['genies']:
-            if ("ignore" in genie_cfg) and genie_cfg["ignore"]==True:
+            if ("ignore" in genie_cfg) and genie_cfg["ignore"] == True:
                 continue
 
             _, genie = self._load_genie(genie_cfg['genie'])
-            self.registerGenie(genie_cfg['name'], genie(self._config, genie_cfg['configuration']))
+            genie_instance = genie(self._config, genie_cfg['configuration'])
+            self.registerGenie(genie_cfg['name'], genie_instance)
 
         self._tempFileManager = TempFileManager(self._config["temp"], 8)
 
@@ -135,16 +136,18 @@ class Genie(object):
 
         return parameters
 
-    def _load_genie(self, name):
+    def _load_genie(self, name_path):
         """
         loads a Genie module from the .genies directory
-        :param name: name of the genie directory
-        :type name: string
+        :param name_path: name of the genie directory
+        :type name_path: string
         :return: Genie class
         :rtype: string, .genies.GenieInterface
         """
-        path = ".genies."+name+".genie"
+        path = ".genies."+name_path+".genie"
         module = importlib.import_module(path, __package__)
+
+        name = name_path.rsplit(".",1)[1] if "." in name_path else name_path
         genieName = name.capitalize()+"Genie"
         genie = module.__dict__[genieName]
         return genieName, genie
