@@ -1,13 +1,13 @@
 {
-  "info": "morpher.py interface",
+  "info": "image_color.py",
   "arguments": [
     {
       "type": "plain",
-      "text": "python morpher.py"
+      "text": "python image_color.py"
     },
     {
       "type": "plain",
-      "text": "--src"
+      "text": " -in="
     },
     {
       "id": "source",
@@ -16,18 +16,8 @@
       "caption": "Source"
     },
     {
-      "type": "image",
-      "text": "--dest"
-    },
-    {
-      "id": "destination",
-      "type": "image",
-      "semantic": "in",
-      "caption": "destination"
-    },
-    {
       "type": "plain",
-      "text": "--out_frames"
+      "text": " -out="
     },
     {
       "id": "results",
@@ -37,27 +27,16 @@
     },
     {
       "type": "plain",
-      "text": "--num"
+      "text": " -num="
     },
     {
       "id": "num_images",
       "type": "int",
       "semantic": "in",
       "min": 1,
-      "max": 30,
-      "default": 10,
+      "max": 60,
+      "default": 4,
       "caption": "Number of images"
-    },
-    {
-      "type": "plain",
-      "text": "--alpha"
-    },
-    {
-      "id": "keep_alpha",
-      "type": "boolean",
-      "semantic": "in",
-      "default": true,
-      "caption": "Keep alpha"
     }
   ]
 }

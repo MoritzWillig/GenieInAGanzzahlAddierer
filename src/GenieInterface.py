@@ -3,8 +3,10 @@ from .helpers.AbstractMethod import AbstractMethod
 
 class GenieInterface(object):
 
-    def __init__(self, configuration, additional):
+    def __init__(self, configuration, additional, type_system):
         self._configuration = configuration
+        self._additional = additional
+        self._type_system = type_system
 
     @AbstractMethod
     def get_inputs(self):
@@ -34,10 +36,11 @@ class GenieInterface(object):
         pass
 
     @AbstractMethod
-    def serve(self, input):
+    def serve(self, input, scope):
         """
 
         :param input:
+        :param scope:
         :return: genie response
         :rtype: string
         """

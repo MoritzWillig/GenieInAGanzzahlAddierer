@@ -3,19 +3,50 @@ from src.helpers.AbstractMethod import AbstractMethod
 from subprocess import call
 from src.datatypes.Boolean import BooleanType
 from src.datatypes.Int import IntType
+import json
+
 
 class CommandlineGenie(GenieInterface):
 
-    def __init__(self, configuration, additional):
-        super(CommandlineGenie, self).__init__(configuration, additional)
+    def __init__(self, configuration, parameters, type_system):
+        super(CommandlineGenie, self).__init__(configuration, parameters, type_system)
 
-    @AbstractMethod
+        _inputs = self._select_by_attribute(self._additional["arguments"], "semantic", "in")
+        _outputs = self._select_by_attribute(self._additional["arguments"], "semantic", "out")
+
+        _inputs_map = {}
+        for input in _inputs:
+            name = input["id"]
+            type_str = input["type"]
+            _inputs_map[name] = type_str
+
+        _outputs_map = {}
+        for output in _outputs:
+            name = output["id"]
+            type_str = output["type"]
+            _outputs_map[name] = type_str
+
+        self._inputs = _inputs_map
+        self._outputs = _outputs_map
+
+    def _select_by_attribute(self, data, name, value):
+        result = []
+        for item in data:
+            if (name in item) and (item[name] == value):
+                result.append(item)
+        return result
+
+    def _select_single_by_attribute(self, data, name, value):
+        for item in data:
+            if item[name] == value:
+                return item
+        raise RuntimeError("key not found")
+
     def get_inputs(self):
-        return {"input1": "image", "input2": "image", "param": "int"}
+        return self._inputs
 
-    @AbstractMethod
     def get_outputs(self):
-        return {"output1": "image", "output2": "image", "output3": "int"}
+        return self._outputs
 
     def _argument_to_string(self, arg):
         type = arg.type
@@ -35,7 +66,7 @@ class CommandlineGenie(GenieInterface):
         if isinstance(id, str):
             raise Exception("input argument id is not a string")
         type = arg.type
-        input = inputs.select_single_by_attribute("id", id)
+        input = self._select_single_by_attribute(inputs, "id", id)
 
         if type == "plain":
             raise Exception("plain is no input type")
@@ -84,16 +115,16 @@ class CommandlineGenie(GenieInterface):
             raise Exception("Unknown argument type")
 
     def _build_command_line(self, inputs):
-        wc = self._configuration.arguments.copy()
+        wc = self._additional["arguments"].copy()
 
-        inputs_ = wc.select_by_attribute("semantic","in")
+        inputs_ = self._select_by_attribute(wc, "semantic","in")
         map(lambda arg: self._process_input_argument(arg, inputs), inputs_)
-        outputs_ = wc.select_by_attribute("semantic","out")
+        outputs_ = self._select_by_attribute(wc, "semantic","out")
         map(lambda arg: self._process_output_argument(arg, inputs), outputs_)
 
         str_arguments = map(lambda arg: self._argument_to_string(arg), wc)
         return str_arguments
 
-    def serve(self, input):
+    def serve(self, input, scope):
         # result = call(self._build_command_line(input))
         return "Test"

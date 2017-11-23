@@ -16,19 +16,20 @@ class Genie(object):
     def __init__(self, name):
         self._loadConfig()
 
+        self._tempFileManager = TempFileManager(self._config["temp"], 8)
+        self._setup_type_system()
+
         self._genies = {}
 
         for genie_cfg in self._config['genies']:
-            if ("ignore" in genie_cfg) and genie_cfg["ignore"] == True:
+            if ("ignore" in genie_cfg) and genie_cfg["ignore"] is True:
                 continue
 
             _, genie = self._load_genie(genie_cfg['genie'])
-            genie_instance = genie(self._config, genie_cfg['configuration'])
+            genie_additional_cfg = \
+                None if 'configuration' not in genie_cfg else self._loadGenieConfig(genie_cfg['configuration'])
+            genie_instance = genie(self._config, genie_additional_cfg, self._type_system)
             self.registerGenie(genie_cfg['name'], genie_instance)
-
-        self._tempFileManager = TempFileManager(self._config["temp"], 8)
-
-        self._setup_type_system()
 
         self.app = Flask(name, static_url_path='')
         self.app.debug = True
@@ -42,7 +43,11 @@ class Genie(object):
             if genie_name not in self._genies:
                 return jsonify({"success": False, "error": 'Unknown genie.'})
 
-            return jsonify({"success": False, "error": 'Not implemented.'})
+            genie = self._genies[genie_name]
+            return jsonify({
+                "inputs": genie.get_inputs(),
+                "outputs:": genie.get_outputs()
+            })
 
         @self.app.route('/genie/<genie_name>/request', methods=["GET"])
         def serve_genie_request(genie_name):
@@ -77,7 +82,7 @@ class Genie(object):
                 return jsonify({"success": False, "error": 'Genie failed'})
 
             try:
-                response = genie.serve(inputs)
+                response = genie.serve(inputs, variable_scope)
             except Exception as e:
                 variable_scope.destroy()
                 return jsonify({"success": False, "error": 'Genie failed'})
@@ -113,6 +118,11 @@ class Genie(object):
         @self.app.route('/uploads/<path:path>')
         def send_images(path):
             return send_from_directory(self._tempFileManager.get_temp_folder(), path)
+
+    def _loadGenieConfig(self, config_path):
+        with open(config_path) as f:
+            config_str = f.read()
+        return json.loads(config_str)
 
     def _filter_superset(self, superset, subset):
         """
