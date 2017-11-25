@@ -79,13 +79,16 @@ class Genie(object):
                     variable_scope.addInstance(instance)
             except Exception as e:
                 variable_scope.destroy()
-                return jsonify({"success": False, "error": 'Genie failed'})
+                raise e
+                return jsonify({"success": False, "error": 'Invalid inputs'})
 
             try:
                 response = genie.serve(inputs, variable_scope)
+                return response
             except Exception as e:
                 variable_scope.destroy()
                 return jsonify({"success": False, "error": 'Genie failed'})
+
 
             variable_scope.destroy()
             return jsonify({"success": False, "msg": response})

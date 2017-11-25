@@ -16,7 +16,15 @@ class ImageType(DataType):
 
     def create_instance_with_value(self, value):
         instance = self.create_instance()
-        instance.set_value(value)
+        instance.set_value(value, False)
+        return instance
 
     def create_instance_with_config(self, value_str, config):
-        raise "Not implemented"
+        create_new = False if "creation" in config and config["creation"] == "existing" else True
+
+        if create_new:
+            name = self._temp_file_manager.createTempFile()
+            return self.create_instance_with_value(name)
+        else:
+            path = self._temp_file_manager.get_path_from_name(value_str)
+            return self.create_instance_with_value(path)

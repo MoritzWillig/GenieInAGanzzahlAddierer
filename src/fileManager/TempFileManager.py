@@ -36,6 +36,8 @@ class TempFileManager(object):
         return self._tempFolder
 
     def get_path_from_name(self, name):
+        if ".." in name:
+            raise RuntimeError("Invalid name",name)
         return self._tempFolder + "/" + name
 
     def reserveName(self):

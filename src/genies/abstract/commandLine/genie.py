@@ -14,20 +14,24 @@ class CommandlineGenie(GenieInterface):
         _inputs = self._select_by_attribute(self._additional["arguments"], "semantic", "in")
         _outputs = self._select_by_attribute(self._additional["arguments"], "semantic", "out")
 
+        self._named_args = {}
         _inputs_map = {}
         for input in _inputs:
             name = input["id"]
             type_str = input["type"]
             _inputs_map[name] = type_str
+            self._named_args[name] = input
 
         _outputs_map = {}
         for output in _outputs:
             name = output["id"]
             type_str = output["type"]
             _outputs_map[name] = type_str
+            self._named_args[name] = output
 
         self._inputs = _inputs_map
         self._outputs = _outputs_map
+
 
     def _select_by_attribute(self, data, name, value):
         result = []
@@ -41,6 +45,9 @@ class CommandlineGenie(GenieInterface):
             if item[name] == value:
                 return item
         raise RuntimeError("key not found")
+
+    def get_config_for_input(self, name):
+        return self._named_args[name]
 
     def get_inputs(self):
         return self._inputs
@@ -127,4 +134,4 @@ class CommandlineGenie(GenieInterface):
 
     def serve(self, input, scope):
         # result = call(self._build_command_line(input))
-        return "Test"
+        return self._build_command_line(input)

@@ -13,6 +13,7 @@
       "id": "source",
       "type": "image",
       "semantic": "in",
+      "creation": "existing",
       "caption": "Source"
     },
     {
