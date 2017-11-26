@@ -17,6 +17,7 @@ class BooleanType(DataType):
     def create_instance_with_value(self, value):
         instance = self.create_instance()
         instance.set_value(value)
+        return instance
 
     def create_instance_with_config(self, value_str, config):
         if value_str is not None:

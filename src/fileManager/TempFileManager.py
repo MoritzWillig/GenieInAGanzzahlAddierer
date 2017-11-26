@@ -1,6 +1,7 @@
 import pathlib
 import os
 import string
+import shutil
 from random import choice
 
 class TempFileManager(object):
@@ -83,9 +84,9 @@ class TempFileManager(object):
 
     def deleteFolder(self, name):
         """
-        Deletes a folder
+        Recursively deletes a folder
         :param name: name of the folder
         """
         path = self.get_path_from_name(name)
-        os.rmdir(path)
+        shutil.rmtree(path, ignore_errors=True)
 

@@ -1,9 +1,9 @@
-from src.datatypes.CreationInfo import CreationInfo
-from .ImageInstance import ImageInstance
 from ..DataType import DataType
+from .ImageFolderInstance import ImageFolderInstance
+from src.datatypes.CreationInfo import CreationInfo
 
 
-class ImageType(DataType):
+class ImageFolderType(DataType):
 
     def __init__(self, temp_file_manager):
         super().__init__()
@@ -13,7 +13,7 @@ class ImageType(DataType):
         return "image"
 
     def create_instance(self):
-        return ImageInstance(self, self._temp_file_manager)
+        return ImageFolderInstance(self, self._temp_file_manager)
 
     def create_instance_with_value(self, value):
         instance = self.create_instance()
@@ -24,7 +24,7 @@ class ImageType(DataType):
         create_info = CreationInfo.CREATE if "creation" not in config else CreationInfo.from_string(config["creation"])
 
         if create_info == CreationInfo.CREATE:
-            name = self._temp_file_manager.createTempFile()
+            name = self._temp_file_manager.createTempFolder()
             return self.create_instance_with_value(name)
         elif create_info == CreationInfo.RESERVE:
             name = self._temp_file_manager.reserveName()

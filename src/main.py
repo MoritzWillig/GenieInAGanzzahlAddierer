@@ -9,6 +9,7 @@ from src.datatypes.TypeSystem import TypeSystem
 from src.datatypes.Int.IntType import IntType
 from src.datatypes.Boolean.BooleanType import BooleanType
 from src.datatypes.Image.ImageType import ImageType
+from src.datatypes.ImageFolder.ImageFolderType import ImageFolderType
 from src.datatypes.InstanceScope import InstanceScope
 
 
@@ -76,7 +77,7 @@ class Genie(object):
                     data_type = self._type_system.get_type_by_name(inputs[arg_name])
                     instance = data_type.create_instance_with_config(
                         arg_value_str, genie.get_config_for_input(arg_name))
-                    variable_scope.addInstance(instance)
+                    variable_scope.addInstance(arg_name, instance)
             except Exception as e:
                 variable_scope.destroy()
                 raise e
@@ -84,9 +85,11 @@ class Genie(object):
 
             try:
                 response = genie.serve(inputs, variable_scope)
-                return response
+                print(">>", response)
+                return jsonify({"success": True, "response": response})
             except Exception as e:
                 variable_scope.destroy()
+                raise e
                 return jsonify({"success": False, "error": 'Genie failed'})
 
 
@@ -176,6 +179,8 @@ class Genie(object):
         self._type_system.register_type("int", IntType())
         self._type_system.register_type("boolean", BooleanType())
         self._type_system.register_type("image", ImageType(self._tempFileManager))
+        self._type_system.register_type("image_folder", ImageFolderType(self._tempFileManager))
+
 
     def registerGenie(self, name, genie):
         """

@@ -1,4 +1,15 @@
 {
-  "genies": ["demo"],
+  "genies": [
+    {
+      "name": "demo",
+      "genie": "demo",
+      "ignore": true
+    },
+    {
+      "name": "image_color",
+      "genie": "abstract.commandLine",
+      "configuration": "configurations/format.json"
+    }
+  ],
   "temp": "./.temp/"
 }
