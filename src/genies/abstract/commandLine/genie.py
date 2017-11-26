@@ -78,21 +78,25 @@ class CommandlineGenie(GenieInterface):
 
         instance = scope.getByName(id)
 
+        config = {
+            "scope": "filepath"
+        }
+
         if type == "plain":
             raise Exception("plain is no input type")
         elif type == "image":
             # save image to temp
             # set value to image path
             arg['type'] = "plain"
-            arg['text'] = instance.serialize_symbolic()
+            arg['text'] = instance.serialize_symbolic(config)
         elif type == "image_folder":
             raise Exception("image_folder is no input type")
         elif type == "int":
             arg['type'] = "plain"
-            arg['text'] = instance.serialize_symbolic()
+            arg['text'] = instance.serialize_symbolic(config)
         elif type == "boolean":
             arg['type'] = "plain"
-            arg['text'] = instance.serialize_symbolic()
+            arg['text'] = instance.serialize_symbolic(config)
         else:
             raise Exception("Unknown argument type")
 
@@ -103,6 +107,10 @@ class CommandlineGenie(GenieInterface):
         if not isinstance(id,str):
             raise Exception("output argument id is not a string ")
         type = arg['type']
+
+        config = {
+            "scope": "filepath"
+        }
 
         # create output instances
         # we currently only allow reference types as output
@@ -131,7 +139,7 @@ class CommandlineGenie(GenieInterface):
 
         # convert to plain
         arg['type'] = "plain"
-        arg['text'] = instance.serialize_symbolic()
+        arg['text'] = instance.serialize_symbolic(config)
 
     def _build_command_line(self, inputs, scope):
         wc = self._additional["arguments"].copy()

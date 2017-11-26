@@ -1,11 +1,12 @@
+from src.datatypes.ScopeInfo import ScopeInfo
 from ..DataInstance import DataInstance
-from ..DataInstance import Persistance
+from ..DataInstance import Persistence
 
 
 class ImageFolderInstance(DataInstance):
 
-    def __init__(self, type, temp_file_manager, persistance=Persistance.SESSION):
-        super(ImageFolderInstance, self).__init__(type, persistance)
+    def __init__(self, type, temp_file_manager, persistence=Persistence.SESSION):
+        super(ImageFolderInstance, self).__init__(type, persistence)
         self._temp_file_manager = temp_file_manager
         self._folderName = None
         self._owned = False
@@ -18,8 +19,17 @@ class ImageFolderInstance(DataInstance):
         if owned is not None:
             self._owned = owned
 
-    def serialize_symbolic(self):
-        return self._folderName
+    def serialize_symbolic(self, attributes):
+        scope = ScopeInfo.NAME if "scope" not in attributes else ScopeInfo.from_string(attributes["scope"])
+
+        if scope == ScopeInfo.NAME:
+            return self._folderName
+        elif scope == ScopeInfo.FILE_PATH:
+            return self._temp_file_manager.get_path_from_name(self._folderName)
+        elif scope == ScopeInfo.URI:
+            raise NotImplementedError("")
+        else:
+            raise RuntimeError("not reachable")
 
     def _do_destroy(self):
         if self._folderName is not None and self._owned:

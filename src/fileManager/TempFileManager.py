@@ -90,3 +90,6 @@ class TempFileManager(object):
         path = self.get_path_from_name(name)
         shutil.rmtree(path, ignore_errors=True)
 
+    def file_exists(self, name):
+        path = self.get_path_from_name(name)
+        return os.path.isfile(name)

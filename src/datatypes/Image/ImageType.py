@@ -22,6 +22,7 @@ class ImageType(DataType):
 
     def create_instance_with_config(self, value_str, config):
         create_info = CreationInfo.CREATE if "creation" not in config else CreationInfo.from_string(config["creation"])
+        # FIXME recognize "owned" option
 
         if create_info == CreationInfo.CREATE:
             name = self._temp_file_manager.createTempFile()
@@ -30,5 +31,4 @@ class ImageType(DataType):
             name = self._temp_file_manager.reserveName()
             return self.create_instance_with_value(name)
         elif create_info == CreationInfo.EXISTING:
-            path = self._temp_file_manager.get_path_from_name(value_str)
-            return self.create_instance_with_value(path)
+            return self.create_instance_with_value(value_str)

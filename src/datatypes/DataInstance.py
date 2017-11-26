@@ -1,15 +1,17 @@
 from ..helpers.AbstractMethod import AbstractMethod
 from enum import Enum
 
-class Persistance(Enum):
+
+class Persistence(Enum):
     SESSION = 1
     PERMANENT = 2
 
+
 class DataInstance(object):
 
-    def __init__(self, type, persistance=Persistance.SESSION):
+    def __init__(self, type, persistence=Persistence.SESSION):
         self._type = type
-        self._persistance = persistance
+        self._persistence = persistence
 
     def get_type(self):
         return self._type
@@ -19,7 +21,7 @@ class DataInstance(object):
         pass
 
     @AbstractMethod
-    def serialize_symbolic(self):
+    def serialize_symbolic(self, attributes):
         """
         Returns a symbolic value for the data instance.
         For value types this is the value itself. For reference types
@@ -35,5 +37,5 @@ class DataInstance(object):
         pass
 
     def destroy(self):
-        if self._persistance != Persistance.PERMANENT:
+        if self._persistence != Persistence.PERMANENT:
             self._do_destroy()

@@ -4,6 +4,7 @@ import json
 from os import listdir
 from os.path import isfile, join
 
+from src.datatypes.CreationInfo import CreationInfo
 from src.fileManager.TempFileManager import TempFileManager
 from src.datatypes.TypeSystem import TypeSystem
 from src.datatypes.Int.IntType import IntType
@@ -74,9 +75,15 @@ class Genie(object):
             # convert each arguments string into a type instance
             try:
                 for arg_name, arg_value_str in args.items():
+                    config = genie.get_config_for_input(arg_name)
+                    # all inputs are assumed to already exist. If the user
+                    # does not explicitly specify otherwise creation information
+                    # is set to EXISTING
+                    if "creation" not in config:
+                        config["creation"] = CreationInfo.to_string(CreationInfo.EXISTING)
                     data_type = self._type_system.get_type_by_name(inputs[arg_name])
                     instance = data_type.create_instance_with_config(
-                        arg_value_str, genie.get_config_for_input(arg_name))
+                        arg_value_str, config)
                     variable_scope.addInstance(arg_name, instance)
             except Exception as e:
                 variable_scope.destroy()
@@ -85,7 +92,7 @@ class Genie(object):
 
             try:
                 response = genie.serve(inputs, variable_scope)
-                print(">>", response)
+                variable_scope.destroy()
                 return jsonify({"success": True, "response": response})
             except Exception as e:
                 variable_scope.destroy()
@@ -94,7 +101,7 @@ class Genie(object):
 
 
             variable_scope.destroy()
-            return jsonify({"success": False, "msg": response})
+            raise RuntimeError("Unreachable")
 
         @self.app.route('/upload', methods=['POST'])
         def upload():
