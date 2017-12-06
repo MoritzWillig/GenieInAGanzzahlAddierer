@@ -57,7 +57,6 @@ body {
   border: 3px dashed #ccc;
   display: block;
   margin: 1em;
-  padding: 20%;
   text-align: left;
   color: #444;
   cursor: pointer;
@@ -68,13 +67,26 @@ body {
   }
 
   .imgcompare .placeholder i {
+    padding-top: 2em;
+    padding-left: 2.75em;
     float: left;
     font-size: 2em;
   }
 
   .imgcompare .placeholder span {
+    padding: 4em 4em 2em 4em;
     display: block;
-    margin-left: 2.75em;
+    margin-left: 4.5em;
+  }
+
+  .imgcompare .placeholder video {
+    width: 90%;
+    margin: 0 5%;
+  }
+
+  .imgcompare .placeholder button {
+    width: 90%;
+    margin: 1em 5% 2em 5%;
   }
 
   .imgcompare .imgwrapper .toolbar {

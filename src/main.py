@@ -113,6 +113,7 @@ class Genie(object):
                 if not file or not valid_file_extension(file.filename):
                     return jsonify({"success": False, "error": 'Invalid file type.'})
                 else:
+                    # FIXME: add file extension here
                     filename = self._tempFileManager.createTempFile()
                     filepath = self._tempFileManager.get_path_from_name(filename)
                     file.save(filepath)

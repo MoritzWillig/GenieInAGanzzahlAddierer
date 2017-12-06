@@ -29,6 +29,12 @@ function initFileUpload(filedropSelector, onsuccess) {
   var filechooser = filedrop.querySelector('.filechooser');
   if (!filechooser) console.info('No `.filechooser` found inside', filedrop);
 
+  var capturebutton = filedrop.querySelector('button');
+  if (!capturebutton) console.log('No capturebutton found inside', filedrop);
+
+  var video = filedrop.querySelector('video');
+  if (!video) console.log('No video element found inside', filedrop);
+
   var acceptedTypes = {
     'image/png': true,
     'image/jpeg': true,
@@ -54,7 +60,11 @@ function initFileUpload(filedropSelector, onsuccess) {
       xhr.onload = function(e) {
         if (progressbar) progressbar.value = progressbar.innerHTML = 100;
         var response = JSON.parse(this.response);
-        if (response.success) onsuccess(response.filename);
+        if (response.success) {
+          onsuccess(response.filename);
+        } else {
+          alert(response.error);
+        }
       };
 
       if (browserSupport.progress) {
@@ -69,6 +79,23 @@ function initFileUpload(filedropSelector, onsuccess) {
       xhr.send(formData);
     }
   }
+
+  // start webcam video stream
+  if ('mediaDevices' in navigator && 'getUserMedia' in navigator.mediaDevices) {
+    navigator.mediaDevices.getUserMedia({video: true, audio: false}).then(function(mediaStream) {
+      video.srcObject = mediaStream;
+      video.onloadedmetadata = function(e) {
+        video.play();
+        video.removeClass('hidden');
+        capturebutton.removeClass('hidden');
+      };
+    }).catch(function(e) {
+      console.log(e);
+    });
+  } else {
+    console.log("Webcam capturing is not supported by this browser.");
+  }
+
 
   // add drag and drop events
   if (browserSupport.draggable) {
@@ -88,7 +115,25 @@ function initFileUpload(filedropSelector, onsuccess) {
 
   // open file chooser on click
   filedrop.onclick = function(e) {
-    filechooser.click();
+    if (e.target !== capturebutton) {
+      filechooser.click();
+    }
+  };
+
+  // capture image from webcam
+  capturebutton.onclick = function(e) {
+    var canvas = document.createElement('canvas');
+    canvas.width  = video.videoWidth;
+    canvas.height = video.videoHeight;
+    canvas.getContext('2d').drawImage(video, 0, 0, video.videoWidth, video.videoHeight);
+    var dataURL = canvas.toDataURL('image/png');
+    var blobBin = atob(dataURL.split(',')[1]);
+    var array = [];
+    for(var i = 0; i < blobBin.length; i++) {
+        array.push(blobBin.charCodeAt(i));
+    }
+    var file = new File([new Uint8Array(array)], 'webcam.png', {type: 'image/png'});
+    uploadFiles([file]);
   };
 }
 
@@ -118,6 +163,7 @@ $('.imgwrapper.right .toolbar i').addEventListener('click', function() {
   $('.placeholder.right').removeClass('hidden');
 });
 
+// retrieve images for the immage gallery
 var xhr = new XMLHttpRequest();
 xhr.open('GET', '/api/get/uploads.json');
 xhr.onload = function(e) {
