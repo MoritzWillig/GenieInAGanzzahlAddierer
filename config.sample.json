@@ -11,5 +11,11 @@
       "configuration": "configurations/format.json"
     }
   ],
-  "temp": "./.temp/"
+  "temp": {
+    "directory": "./.temp/",
+    "use_static_folder":false,
+    "folder_prefix_length": 8,
+    "static_temp_name":"user_static",
+    "append_counter": true
+  }
 }

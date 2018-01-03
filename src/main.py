@@ -18,7 +18,7 @@ class Genie(object):
     def __init__(self, name):
         self._loadConfig()
 
-        self._tempFileManager = TempFileManager(self._config["temp"], 8)
+        self._tempFileManager = TempFileManager(self._config["temp"])
         self._setup_type_system()
 
         self._genies = {}

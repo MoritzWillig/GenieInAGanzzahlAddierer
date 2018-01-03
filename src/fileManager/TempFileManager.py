@@ -6,17 +6,27 @@ from random import choice
 
 class TempFileManager(object):
 
-    def __init__(self, tempFolder, prefix_length = 5):
-        self._prefix_length = prefix_length
+    def __init__(self, config):
+        self._prefix_length = config.get("folder_prefix_length", 8)
+        self._static_temp_name = self._get_argument(config, "static_temp_name")
+        self._append_counter = self._get_argument(config, "append_counter")
+        self._use_static_folder = self._get_argument(config, "use_static_folder")
         self._name_index = 0
-        self._tempFolder = str(pathlib.Path(tempFolder).absolute())
+        self._tempFolder = str(pathlib.Path(self._get_argument(config, "directory")).absolute())
         self._prepareTempFolder()
+
+    def _get_argument(self, config, key):
+        try:
+            return config[key]
+        except KeyError:
+            raise RuntimeError("Required argument '"+key+"' not found in 'temp' configuration")
 
     def _prepareTempFolder(self):
         """
         sets up a temporary folder to store files and folders
         """
-        self._prefix = self._create_random_string(self._prefix_length)+"_"
+        self._prefix = self._static_temp_name if self._use_static_folder else \
+            self._create_random_string(self._prefix_length)+("_" if self._append_counter else "")
         pathlib.Path(self._tempFolder).mkdir(parents=True, exist_ok=True)
 
     def _create_random_string(self, length):
@@ -47,7 +57,10 @@ class TempFileManager(object):
         :return: the reserved name
         :rtype string
         """
-        name = self._prefix + str(self._name_index)
+        name = self._prefix
+        if self._append_counter:
+            name += str(self._name_index)
+
         self._name_index += 1
         return name
 
@@ -71,7 +84,12 @@ class TempFileManager(object):
         """
         name = self.reserveName()
         path = self.get_path_from_name(name)
-        pathlib.Path(path).mkdir(parents=False, exist_ok=False)
+
+        # if a user specific folder without a counter is used, each request uses the same folder -> exist_ok=True
+        # in all other cases, name collisions should be handled as errors  -> exist_ok=False
+        exist_ok=self._use_static_folder and not self._append_counter
+
+        pathlib.Path(path).mkdir(parents=False, exist_ok=exist_ok)
         return name
 
     def deleteFile(self, name):
