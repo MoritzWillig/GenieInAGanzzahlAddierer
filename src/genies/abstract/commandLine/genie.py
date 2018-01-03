@@ -142,16 +142,24 @@ class CommandlineGenie(GenieInterface):
         arg['text'] = instance.serialize_symbolic(config)
 
     def _build_command_line(self, inputs, scope):
-        wc = self._additional["arguments"].copy()
+        # copy arguments list to configure command line call
+        wc = [a.copy() for a in self._additional["arguments"]]
 
+        # modify arguments (e.g. fill in in-/output paths)
         inputs_ = self._select_by_attribute(wc, "semantic", "in")
         deque(map(lambda arg: self._process_input_argument(arg, scope), inputs_))
         outputs_ = self._select_by_attribute(wc, "semantic", "out")
         deque(map(lambda arg: self._process_output_argument(arg, scope), outputs_))
 
         str_arguments = list(map(lambda arg: self._argument_to_string(arg), wc))
-        return str_arguments
+        return str_arguments, outputs_
 
     def serve(self, input, scope):
-        # result = call(self._build_command_line(input, scope))
-        return self._build_command_line(input, scope)
+        commandline, outputs = self._build_command_line(input, scope)
+        commandline_string = "".join(commandline)
+        result = call(commandline_string)
+        return {
+            "XYZ":True,
+            "error": result,
+            "out": outputs
+        }
