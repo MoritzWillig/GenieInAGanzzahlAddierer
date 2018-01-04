@@ -3,7 +3,7 @@
   "arguments": [
     {
       "type": "plain",
-      "text": "python image_color.py"
+      "text": "python ./demo/image_color.py"
     },
     {
       "type": "plain",
