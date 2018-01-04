@@ -6,6 +6,8 @@ from src.datatypes.Int import IntType
 from src.datatypes.Image.ImageType import CreationInfo
 import json
 from collections import deque
+from os import listdir
+from os.path import isfile, join
 
 
 class CommandlineGenie(GenieInterface):
@@ -100,7 +102,7 @@ class CommandlineGenie(GenieInterface):
         else:
             raise Exception("Unknown argument type")
 
-    def _process_output_argument(self, arg, scope):
+    def _preprocess_output_argument(self, arg, scope):
         # FIXME instances are not added to scope
 
         id = arg['id']
@@ -147,19 +149,58 @@ class CommandlineGenie(GenieInterface):
 
         # modify arguments (e.g. fill in in-/output paths)
         inputs_ = self._select_by_attribute(wc, "semantic", "in")
-        deque(map(lambda arg: self._process_input_argument(arg, scope), inputs_))
         outputs_ = self._select_by_attribute(wc, "semantic", "out")
-        deque(map(lambda arg: self._process_output_argument(arg, scope), outputs_))
+        for output in outputs_:
+            output["origin_type"] = output["type"]
+        deque(map(lambda arg: self._process_input_argument(arg, scope), inputs_))
+        deque(map(lambda arg: self._preprocess_output_argument(arg, scope), outputs_))
 
-        str_arguments = list(map(lambda arg: self._argument_to_string(arg), wc))
+        str_arguments = "".join(list(map(lambda arg: self._argument_to_string(arg), wc)))
         return str_arguments, outputs_
 
-    def serve(self, input, scope):
-        commandline, outputs = self._build_command_line(input, scope)
-        commandline_string = "".join(commandline)
-        result = call(commandline_string)
-        return {
-            "XYZ":True,
-            "error": result,
-            "out": outputs
+    def _read_output(self, argument_info):
+        print("$", argument_info)
+        type = argument_info["origin_type"]
+        data = []
+        if type == "plain":
+            raise Exception("plain is no output type")
+        elif type == "image":
+            raise NotImplementedError("Output reader for type 'image' is not implemented")
+            #FIXME read file name
+        elif type == "image_folder":
+            folder = argument_info['text']+"/"
+            data = [f for f in listdir(folder) if isfile(join(folder, f))]
+        elif type == "int":
+            raise Exception("int is no output type")
+        elif type == "boolean":
+            raise Exception("boolean is no output type")
+        else:
+            raise Exception("Unknown argument type")
+
+        return argument_info["id"], {
+            "type": type,
+            "data": data
         }
+
+    def _read_outputs(self, return_code, commandline_info):
+        if return_code != 0:
+            return {
+                "error": return_code
+            }
+
+        outputs = {}
+        for i in commandline_info:
+            id, data = self._read_output(i)
+            outputs[id] = data
+
+        return {
+            "error": return_code,
+            "results": outputs
+        }
+
+    def serve(self, input, scope):
+        commandline_string, commandline_info = self._build_command_line(input, scope)
+        return_code = call(commandline_string)
+
+        result = self._read_outputs(return_code, commandline_info)
+        return result
