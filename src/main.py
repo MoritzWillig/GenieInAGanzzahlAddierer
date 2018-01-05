@@ -5,6 +5,7 @@ from os import listdir
 from os.path import isfile, join
 
 from src.datatypes.CreationInfo import CreationInfo
+from src.datatypes.FileFolder.FileFolderType import FileFolderType
 from src.fileManager.TempFileManager import TempFileManager
 from src.datatypes.TypeSystem import TypeSystem
 from src.datatypes.Int.IntType import IntType
@@ -111,7 +112,20 @@ class Genie(object):
             variable_scope.destroy()
             raise RuntimeError("Unreachable")
 
-        @self.app.route('/session/<session_name>/status', methods=["GET"])
+        @self.app.route('/session/create', methods=["GET"])
+        def serve_session_create():
+            config = {"creation": CreationInfo.to_string(CreationInfo.CREATE)}
+            data_type = self._type_system.get_type_by_name("file_folder")
+            instance = data_type.create_instance_with_config(None, config)
+
+            return jsonify({"success": True, "session": instance.get_value()})
+
+        @self.app.route('/session/<session_name>/upload/<input_id>', methods=["GET"])
+        def serve_session_upload(session_name, input_id):
+            #FIXME
+            raise NotImplementedError("Not implemented")
+
+        @self.app.route('/session/<session_name>/status', methods=["GET", "POST"])
         def serve_session_result(session_name):
             #FIXME
             raise NotImplementedError("Not implemented")
@@ -206,6 +220,7 @@ class Genie(object):
         self._type_system.register_type("boolean", BooleanType())
         self._type_system.register_type("image", ImageType(self._tempFileManager))
         self._type_system.register_type("image_folder", ImageFolderType(self._tempFileManager))
+        self._type_system.register_type("file_folder", FileFolderType(self._tempFileManager))
 
 
     def registerGenie(self, name, genie):
