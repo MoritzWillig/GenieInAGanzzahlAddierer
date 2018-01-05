@@ -19,6 +19,14 @@ class Genie(object):
         self._loadConfig()
 
         self._tempFileManager = TempFileManager(self._config["temp"])
+        self._runtime_cfg = {
+            "session": {
+                #we currently use the prefix as session name. if results are grouped by session
+                #a folder should be created for each session TODO
+                "name": self._tempFileManager.get_prefix()
+            }
+        }
+        self._config["_runtime"] = self._runtime_cfg
         self._setup_type_system()
 
         self._genies = {}
@@ -102,6 +110,16 @@ class Genie(object):
 
             variable_scope.destroy()
             raise RuntimeError("Unreachable")
+
+        @self.app.route('/session/<session_name>/status', methods=["GET"])
+        def serve_session_result(session_name):
+            #FIXME
+            raise NotImplementedError("Not implemented")
+
+        @self.app.route('/session/<session_name>/serve/<data_id>', methods=["GET"])
+        def serve_session_result_output(session_name, data_id):
+            #FIXME filter out results file
+            return send_from_directory(self._tempFileManager.get_temp_folder(), session_name + "/" + data_id)
 
         @self.app.route('/upload', methods=['POST'])
         def upload():

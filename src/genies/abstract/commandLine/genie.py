@@ -159,7 +159,6 @@ class CommandlineGenie(GenieInterface):
         return str_arguments, outputs_
 
     def _read_output(self, argument_info):
-        print("$", argument_info)
         type = argument_info["origin_type"]
         data = []
         if type == "plain":
@@ -182,7 +181,7 @@ class CommandlineGenie(GenieInterface):
             "data": data
         }
 
-    def _read_outputs(self, return_code, commandline_info):
+    def _read_outputs(self, return_code, commandline_info, scope):
         if return_code != 0:
             return {
                 "error": return_code
@@ -195,6 +194,7 @@ class CommandlineGenie(GenieInterface):
 
         return {
             "error": return_code,
+            "request": self._configuration["_runtime"]["session"]["name"],
             "results": outputs
         }
 
@@ -202,5 +202,6 @@ class CommandlineGenie(GenieInterface):
         commandline_string, commandline_info = self._build_command_line(input, scope)
         return_code = call(commandline_string)
 
-        result = self._read_outputs(return_code, commandline_info)
+        result = self._read_outputs(return_code, commandline_info, scope)
+        #TODO store result in session folder
         return result

@@ -29,6 +29,9 @@ class TempFileManager(object):
             self._create_random_string(self._prefix_length)+("_" if self._append_counter else "")
         pathlib.Path(self._tempFolder).mkdir(parents=True, exist_ok=True)
 
+    def get_prefix(self):
+        return self._prefix
+
     def _create_random_string(self, length):
         """
         Generates a random string of a given length,
