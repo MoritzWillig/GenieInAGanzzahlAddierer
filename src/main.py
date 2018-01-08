@@ -1,11 +1,12 @@
 from flask import Flask, send_from_directory, request, jsonify
 import importlib
-import json
 from os import listdir
 from os.path import isfile, join
+import json
 
 from src.datatypes.CreationInfo import CreationInfo
 from src.datatypes.FileFolder.FileFolderType import FileFolderType
+from src.fileManager.FolderManipulator import FolderManipulator
 from src.fileManager.TempFileManager import TempFileManager
 from src.datatypes.TypeSystem import TypeSystem
 from src.datatypes.Int.IntType import IntType
@@ -112,20 +113,75 @@ class Genie(object):
             variable_scope.destroy()
             raise RuntimeError("Unreachable")
 
+        def _load_session(session_name):
+            config = {"creation": CreationInfo.to_string(CreationInfo.EXISTING)}
+            data_type = self._type_system.get_type_by_name("file_folder")
+            instance = data_type.create_instance_with_config(session_name, config)
+
+            if not instance.exists():
+                return None
+
+            folder = FolderManipulator(instance.get_path())
+            return folder
+
         @self.app.route('/session/create', methods=["GET"])
         def serve_session_create():
             config = {"creation": CreationInfo.to_string(CreationInfo.CREATE)}
             data_type = self._type_system.get_type_by_name("file_folder")
             instance = data_type.create_instance_with_config(None, config)
 
-            return jsonify({"success": True, "session": instance.get_value()})
+            session_name = instance.get_value()
+            session_folder = _load_session(session_name)
+            if session_folder is None:
+                return jsonify({"success": False, "message": "session could not be created"})
 
-        @self.app.route('/session/<session_name>/upload/<input_id>', methods=["GET"])
+            session_folder.createFolder("inputs")
+            session_folder.createFolder("outputs")
+            session_file = session_folder.get_file("session_info.json")
+            session_file.set_contents(json.dumps({
+                "inputs": {
+                    "count": 0,
+                    "mapping": {}
+                },
+            }))
+
+            return jsonify({"success": True, "session": session_name})
+
+        @self.app.route('/session/<session_name>/upload/<input_id>', methods=["GET", "POST"])
         def serve_session_upload(session_name, input_id):
-            #FIXME
-            raise NotImplementedError("Not implemented")
+            session_folder = _load_session(session_name)
+            if session_folder is None:
+                return jsonify({"success": False, "message": "session does not exist"})
 
-        @self.app.route('/session/<session_name>/status', methods=["GET", "POST"])
+            # load session info
+            session_file = session_folder.get_file("session_info.json")
+            contents = session_file.get_contents()
+            session_object = json.loads(contents)
+            if not isinstance(session_object, dict):
+                return jsonify({"success": False, "message": "could not read session information"})
+
+            #TODO validate correct session_object structure
+            inputs = session_object["inputs"]
+
+            # store input files
+            # FIXME implement (configurable) upload limit/constraints
+            for file in request.files.getlist('file'):
+                if input_id in inputs["mapping"].keys():
+                    #TODO allow overwriting input ids
+                    raise RuntimeError("Input id '"+input_id+"' was already uploaded")
+                filename = inputs["count"]
+                filepath = session_folder.get_path_from_name("inputs/"+filename)
+                file.save(filepath)
+
+                inputs["count"] += 1
+                inputs["mapping"][input_id] += str(filename)
+
+            # save uploaded files to session information
+            session_file.set_contents(json.dumps(session_object))
+
+            return jsonify({"success": True, "message": "ok"})
+
+        @self.app.route('/session/<session_name>/status', methods=["GET"])
         def serve_session_result(session_name):
             #FIXME
             raise NotImplementedError("Not implemented")

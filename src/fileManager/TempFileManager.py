@@ -6,13 +6,14 @@ from random import choice
 
 class TempFileManager(object):
 
-    def __init__(self, config):
+    def __init__(self, config, parent=None):
         self._prefix_length = config.get("folder_prefix_length", 8)
         self._static_temp_name = self._get_argument(config, "static_temp_name")
         self._append_counter = self._get_argument(config, "append_counter")
         self._use_static_folder = self._get_argument(config, "use_static_folder")
         self._name_index = 0
         self._tempFolder = str(pathlib.Path(self._get_argument(config, "directory")).absolute())
+        self._parent = None
         self._prepareTempFolder()
 
     def _get_argument(self, config, key):
@@ -113,4 +114,4 @@ class TempFileManager(object):
 
     def file_exists(self, name):
         path = self.get_path_from_name(name)
-        return os.path.isfile(name)
+        return os.path.isfile(path)

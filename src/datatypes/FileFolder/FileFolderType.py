@@ -30,5 +30,5 @@ class FileFolderType(DataType):
             name = self._temp_file_manager.reserveName()
             return self.create_instance_with_value(name)
         elif create_info == CreationInfo.EXISTING:
-            path = self._temp_file_manager.get_path_from_name(value_str)
-            return self.create_instance_with_value(path)
+            name = value_str
+            return self.create_instance_with_value(name)
