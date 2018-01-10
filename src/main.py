@@ -169,12 +169,12 @@ class Genie(object):
                 if input_id in inputs["mapping"].keys():
                     #TODO allow overwriting input ids
                     raise RuntimeError("Input id '"+input_id+"' was already uploaded")
-                filename = inputs["count"]
+                filename = str(inputs["count"])
                 filepath = session_folder.get_path_from_name("inputs/"+filename)
                 file.save(filepath)
 
                 inputs["count"] += 1
-                inputs["mapping"][input_id] += str(filename)
+                inputs["mapping"][input_id] = filename
 
             # save uploaded files to session information
             session_file.set_contents(json.dumps(session_object))
