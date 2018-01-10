@@ -221,6 +221,17 @@ class Genie(object):
         def send_images(path):
             return send_from_directory(self._tempFileManager.get_temp_folder(), path)
 
+        if ("dev" in self._config) and ("enable" in self._config["dev"]) and self._config["dev"]["enable"] is True:
+            print("dev mode enabled - serving dev files")
+
+            @self.app.route('/dev/upload_tester/')
+            @self.app.route('/dev/upload_tester/<path:path>')
+            def upload_tester(path=None):
+                if path is None:
+                    path = "index.html"
+                return send_from_directory("./static/dev/", path)
+
+
     def _loadGenieConfig(self, config_path):
         with open(config_path) as f:
             config_str = f.read()

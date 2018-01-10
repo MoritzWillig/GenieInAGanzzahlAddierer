@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            padding:0px;
+            margin:0px;
+        }
+
+        .layout_element {
+            padding:10pt;
+        }
+
+        .menu {
+            width: 15%;
+            float: left;
+            background-color: greenyellow;
+            min-height: 400px;
+        }
+
+        .main {
+            width: 50%;
+            float: left;
+            background-color: green;
+            min-height: 400px;
+        }
+
+        .result {
+            width: 35%;
+            float: left;
+            background-color: black;
+            color: white;
+            min-height: 400px;
+        }
+
+        .clickable {
+            cursor: pointer;
+            text-decoration: underline;
+        }
+    </style>
+
+    <script>
+        param_form = undefined;
+        result_form = undefined
+
+        function init() {
+            param_form = document.getElementById("param_form");
+            result_form = document.getElementById("result_form");
+            load_greeter_form();
+        }
+
+        function load_greeter_form() {
+            param_form.innerHTML="Select an action on the left column ..."
+        }
+
+        function load_create_form() {
+            param_form.innerHTML=`
+                <div id="action_form">
+                    <button onclick="create_form_action()">CREATE</button>
+                </div>
+            `
+        }
+
+        function load_upload_form() {
+            param_form.innerHTML="<button>UPLOAD</button>"
+        }
+
+        function load_request_form() {
+            param_form.innerHTML="<button>REQUEST</button>"
+        }
+
+        function load_serve_form() {
+            param_form.innerHTML="<button>SERVE</button>"
+        }
+
+
+        /// ACTIONS ///
+
+        function perform_ajax(url, args, request_type) {
+            var xhttp = new XMLHttpRequest();
+
+            xhttp.onreadystatechange = function() {
+                if (this.readyState == XMLHttpRequest.DONE && this.status == 200) {
+                    console.log("!",this)
+                    result_form.innerHTML = this.responseText;
+                }
+            };
+
+            if (request_type==="get") {
+                xhttp.open("GET", url, true);
+                xhttp.send(args);
+            } else {
+                xhttp.open("POST", url, true);
+                xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+                xhttp.send(args);
+            }
+        }
+
+        function create_form_action() {
+            perform_ajax("http://127.0.0.1:5000/session/create",undefined,"get")
+        }
+
+    </script>
+</head>
+
+<body onload="init()">
+<div class="menu layout_element">
+    <h3>Session</h3>
+    <span onclick="load_create_form()" class="clickable">create</span><br>
+    <span onclick="load_upload_form()" class="clickable">upload</span><br>
+    <span onclick="load_request_form()" class="clickable">request</span><br>
+    <span onclick="load_serve_form()" class="clickable">serve</span><br>
+</div>
+
+<div class="main layout_element">
+    <h1>API tester</h1>
+    <div id="param_form"></div>
+</div>
+
+<div class="result layout_element">
+    <h3>Results</h3>
+    <div id="result_form"></div>
+</div>
+</body>
+
+</html>
