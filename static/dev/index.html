@@ -27,6 +27,7 @@
         }
 
         .main {
+            position:relative;
             width: 50%;
             float: left;
             background-color: green;
@@ -44,6 +45,11 @@
         .clickable {
             cursor: pointer;
             text-decoration: underline;
+        }
+
+        .result_image {
+            max-width: 200px;
+            max-height: 200px;
         }
     </style>
 
@@ -102,7 +108,16 @@
         }
 
         function load_serve_form() {
-            param_form.innerHTML="<button>SERVE</button>"
+            param_form.innerHTML=`
+                name: <input type="text" value="output" id="serve_name"><br>
+                represent as:
+                <select id="serve_type">
+                    <option value="text" value="text">Text</option>
+                    <option value="json" value="json">JSON</option>
+                    <option value="image" value="image">Image</option>
+                </select><br>
+                <button onclick="serve_form_action()">SERVE</button>
+            `;
         }
 
 
@@ -132,6 +147,30 @@
             perform_ajax("http://127.0.0.1:5000/session/create",undefined,"get")
         }
 
+        function serve_form_action() {
+            var session_name = $("#session_name").value;
+            var name = $("#serve_name").value;
+            var element = $("#serve_type");
+            var data_id = element.options[element.selectedIndex].value;
+
+            var path = "http://127.0.0.1:5000/session/"+session_name+"/serve/"+name;
+            switch (data_id) {
+                case "text":
+                    perform_ajax(path,undefined,"get");
+                    break;
+                case "json":
+                    throw "Not implemented";
+                    break;
+                case "image":
+                    result_form.innerHTML = "<img src='"+path+"' class='result_image'>";
+                    break;
+                default:
+                    throw "Unknown data_id";
+            }
+
+
+        }
+
 
 
 
@@ -151,12 +190,6 @@ function initFileUpload(filedropSelector, onsuccess) {
   var capturebutton = filedrop.querySelector('button');
   if (!capturebutton) console.log('No capturebutton found inside', filedrop);
 
-  var acceptedTypes = {
-    'image/png': true,
-    'image/jpeg': true,
-    'image/gif': true
-  };
-
   var browserSupport = {
     draggable: 'draggable' in document.createElement('span'),
     formdata: !!window.FormData,
@@ -164,7 +197,7 @@ function initFileUpload(filedropSelector, onsuccess) {
   };
 
   // upload the files
-  function uploadFiles(files) {
+  function uploadFiles(name, files) {
     var formData = browserSupport.formdata ? new FormData() : null;
     for (var i = 0; i < files.length; i++) {
       if (browserSupport.formdata) formData.append('file', files[i]);
@@ -172,7 +205,7 @@ function initFileUpload(filedropSelector, onsuccess) {
 
     if (browserSupport.formdata) {
       var xhr = new XMLHttpRequest();
-      xhr.open('POST', '/session/user_static/upload/source');
+      xhr.open('POST', '/session/user_static/upload/'+name);
       xhr.onload = function(e) {
         if (progressbar) progressbar.value = progressbar.innerHTML = 100;
         var response = JSON.parse(this.response);
@@ -211,13 +244,13 @@ function initFileUpload(filedropSelector, onsuccess) {
     filedrop.ondrop = function (e) {
       this.removeClass('hover');
       e.preventDefault();
-      uploadFiles(e.dataTransfer.files);
+      uploadFiles("source",e.dataTransfer.files);
     };
   }
 
   // add change event for filechooser
   filechooser.onchange = function () {
-    uploadFiles(this.files);
+    uploadFiles("source",this.files);
   };
 
   // open file chooser on click
@@ -241,6 +274,10 @@ function initFileUpload(filedropSelector, onsuccess) {
 
 <div class="main layout_element">
     <h1>API tester</h1>
+    <div style="position:absolute; right:10px">
+        session name:<br>
+        <input id="session_name" value="user_static">
+    </div>
     <div id="param_form"></div>
 </div>
 

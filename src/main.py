@@ -3,6 +3,7 @@ import importlib
 from os import listdir
 from os.path import isfile, join
 import json
+import re
 
 from src.datatypes.CreationInfo import CreationInfo
 from src.datatypes.FileFolder.FileFolderType import FileFolderType
@@ -113,10 +114,20 @@ class Genie(object):
             variable_scope.destroy()
             raise RuntimeError("Unreachable")
 
+        def _get_folder_from_session(session_name):
+            # if ("." in session_name) or ("/" in session_name):
+            if re.match("[A-Za-z0-9]+$", session_name):
+                return None
+            return session_name
+
         def _load_session(session_name):
             config = {"creation": CreationInfo.to_string(CreationInfo.EXISTING)}
             data_type = self._type_system.get_type_by_name("file_folder")
-            instance = data_type.create_instance_with_config(session_name, config)
+            folder_name = _get_folder_from_session(session_name)
+            # check for invalid session_name
+            if folder_name is None:
+                return None
+            instance = data_type.create_instance_with_config(folder_name, config)
 
             if not instance.exists():
                 return None
@@ -143,6 +154,9 @@ class Genie(object):
                     "count": 0,
                     "mapping": {}
                 },
+                "information": {
+                    "status": "created"
+                }
             }))
 
             return jsonify({"success": True, "session": session_name})
@@ -188,9 +202,14 @@ class Genie(object):
 
         @self.app.route('/session/<session_name>/serve/<data_id>', methods=["GET"])
         def serve_session_result_output(session_name, data_id):
-            #FIXME filter out results file
-            return send_from_directory(self._tempFileManager.get_temp_folder(), session_name + "/" + data_id)
+            # FIXME filter out results file
+            folder_name = _get_folder_from_session(session_name)
+            if folder_name is None:
+                return jsonify({"success": False, "message": "session does not exist"})
+            return send_from_directory(self._tempFileManager.get_temp_folder() + "/" + folder_name + "/" + "outputs/", data_id)
 
+        '''
+        # replaced by /session/<session_name>/upload/<input_id>
         @self.app.route('/upload', methods=['POST'])
         def upload():
             if request.method != 'POST':
@@ -207,6 +226,7 @@ class Genie(object):
                     file.save(filepath)
 
             return jsonify({"success": True, "filename": filename})
+        '''
 
         def valid_file_extension(filename):
             ALLOWED_EXTENSIONS = ['png', 'jpg', 'jpeg', 'gif']
@@ -230,7 +250,6 @@ class Genie(object):
                 if path is None:
                     path = "index.html"
                 return send_from_directory("./static/dev/", path)
-
 
     def _loadGenieConfig(self, config_path):
         with open(config_path) as f:
@@ -279,7 +298,7 @@ class Genie(object):
         with open("./config.json") as f:
             config_str = f.read()
         self._config = json.loads(config_str)
-        self._config['__master']=self
+        self._config['__master'] = self
 
     def _setup_type_system(self):
         self._type_system = TypeSystem()
