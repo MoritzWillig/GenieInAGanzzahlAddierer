@@ -172,6 +172,9 @@ class Genie(object):
 
         @self.app.route('/session/create', methods=["GET"])
         def serve_session_create():
+            # clear sub folder from any previous session paths
+            self._tempFileManager.set_sub_folder("")
+
             config = {"creation": CreationInfo.to_string(CreationInfo.CREATE)}
             data_type = self._type_system.get_type_by_name("file_folder")
             instance = data_type.create_instance_with_config(None, config)
