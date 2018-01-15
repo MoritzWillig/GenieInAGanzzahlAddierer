@@ -157,6 +157,10 @@
             }
         }
 
+        function get_session_name() {
+            return $("#session_name").value;
+        }
+
         function formatParams(params){
             if (params === undefined) {
                 return "";
@@ -176,6 +180,7 @@
 
         function request_form_action() {
             let session_name = $("#session_name").value;
+            console.log(">>>",session_name);
             let genie = $("#genie_name").value;
 
             let parameters = {};
@@ -217,7 +222,7 @@
         }
 
         function serve_form_action() {
-            var session_name = $("#session_name").value;
+            var session_name = get_session_name();
             var name = $("#serve_name").value;
             var element = $("#serve_type");
             var data_id = element.options[element.selectedIndex].value;
@@ -264,7 +269,7 @@ function initFileUpload(filedropSelector, onsuccess) {
   };
 
   // upload the files
-  function uploadFiles(name, files) {
+  function uploadFiles(session_name, name, files) {
     var formData = browserSupport.formdata ? new FormData() : null;
     for (var i = 0; i < files.length; i++) {
       if (browserSupport.formdata) formData.append('file', files[i]);
@@ -272,7 +277,7 @@ function initFileUpload(filedropSelector, onsuccess) {
 
     if (browserSupport.formdata) {
       var xhr = new XMLHttpRequest();
-      xhr.open('POST', '/session/user_static/upload/'+name);
+      xhr.open('POST', '/session/'+session_name+'/upload/'+name);
       xhr.onload = function(e) {
         if (progressbar) progressbar.value = progressbar.innerHTML = 100;
         var response = JSON.parse(this.response);
@@ -311,13 +316,15 @@ function initFileUpload(filedropSelector, onsuccess) {
     filedrop.ondrop = function (e) {
       this.removeClass('hover');
       e.preventDefault();
-      uploadFiles("source",e.dataTransfer.files);
+      session_name = get_session_name();
+      uploadFiles(session_name, "source",e.dataTransfer.files);
     };
   }
 
   // add change event for filechooser
   filechooser.onchange = function () {
-    uploadFiles("source",this.files);
+      session_name = get_session_name();
+      uploadFiles(session_name, "source",this.files);
   };
 
   // open file chooser on click
