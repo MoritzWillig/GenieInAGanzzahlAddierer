@@ -13,8 +13,7 @@ class TempFileManager(object):
         self._use_static_folder = self._get_argument(config, "use_static_folder")
         self._name_index = 0
         self._base_path = str(pathlib.Path(self._get_argument(config, "directory")).absolute()) + "/"
-        self._sub_path = None
-        self._parent = None
+        self._sub_path = ""
         self._prepare_temp_folder()
 
     @staticmethod
