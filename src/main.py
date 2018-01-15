@@ -221,11 +221,11 @@ class Genie(object):
                     #TODO allow overwriting input ids
                     raise RuntimeError("Input id '"+input_id+"' was already uploaded")
 
-                self._tempFileManager.set_sub_folder(session_sub_folder + "input/")
+                self._tempFileManager.set_sub_folder(session_sub_folder + "inputs/")
                 # add session counter to name to prevent name clashes on server restart
                 # TODO _tempFileManager should save counters per directory
                 filename = self._tempFileManager.reserveName("_"+str(inputs["count"]))
-                filepath = session_folder.get_path_from_name(filename)
+                filepath = self._tempFileManager.get_path_from_name(filename)
                 file.save(filepath)
 
                 inputs["count"] += 1

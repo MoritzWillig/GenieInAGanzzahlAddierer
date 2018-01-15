@@ -157,7 +157,11 @@
             }
         }
 
-        function formatParams( params ){
+        function formatParams(params){
+            if (params === undefined) {
+                return "";
+            }
+
             return "?" + Object
                 .keys(params)
                 .map(function(key) {
