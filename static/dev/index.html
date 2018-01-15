@@ -57,6 +57,8 @@
         param_form = undefined;
         result_form = undefined;
 
+        request_fields = []
+
 
         var $ = function(q) { return document.querySelector(q); };
 
@@ -104,7 +106,18 @@
         }
 
         function load_request_form() {
-            param_form.innerHTML="<button>REQUEST</button>"
+            request_fields = [];
+            param_form.innerHTML=`
+                <input type="text" value="image_color" id="genie_name"><br>
+                <button onclick="request_form_action()">REQUEST</button><br>
+                <span>Parameters:</span>
+                <div id="add_param_form">
+                    <button onclick="add_request_parameter_field()" id="add_param_button">add parameter</button>
+                </div>
+            `;
+            add_request_parameter_field()
+            request_fields[0][0].value="num_images";
+            request_fields[0][1].value="4";
         }
 
         function load_serve_form() {
@@ -134,8 +147,9 @@
             };
 
             if (request_type==="get") {
-                xhttp.open("GET", url, true);
-                xhttp.send(args);
+                console.log(">>",args);
+                xhttp.open("GET", url+ formatParams(args), true);
+                xhttp.send();
             } else {
                 xhttp.open("POST", url, true);
                 xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
@@ -143,8 +157,59 @@
             }
         }
 
+        function formatParams( params ){
+            return "?" + Object
+                .keys(params)
+                .map(function(key) {
+                    return key+"="+encodeURIComponent(params[key])
+                })
+                .join("&");
+        }
+
         function create_form_action() {
             perform_ajax("http://127.0.0.1:5000/session/create",undefined,"get")
+        }
+
+        function request_form_action() {
+            let session_name = $("#session_name").value;
+            let genie = $("#genie_name").value;
+
+            let parameters = {};
+            for (let i in request_fields) {
+                let parameter_pair = request_fields[i];
+                let param_name = parameter_pair[0].value;
+                let param_value = parameter_pair[1].value;
+
+                if (param_name !== "") {
+                    parameters[param_name] = param_value;
+                }
+            }
+
+            console.log("Parameters:",parameters);
+
+            perform_ajax("http://127.0.0.1:5000/genie/"+genie+"/request/"+session_name,parameters,"get")
+        }
+
+        function add_request_parameter_field() {
+            let param_row = document.createElement("div");
+
+            let name_input = document.createElement("input");
+            let value_input = document.createElement("input");
+            let remove_button = document.createElement("button");
+            remove_button.innerHTML = "-";
+            remove_button.onclick = function() {
+                //Not implemented ...
+            };
+
+            param_row.appendChild(name_input);
+            param_row.appendChild(value_input);
+            param_row.appendChild(remove_button);
+
+            let add_param_form = $("#add_param_form");
+            let add_button=$("#add_param_button");
+
+            add_param_form.insertBefore(param_row, add_button);
+            request_fields.push([name_input, value_input, param_row])
         }
 
         function serve_form_action() {
@@ -167,8 +232,6 @@
                 default:
                     throw "Unknown data_id";
             }
-
-
         }
 
 

@@ -12,28 +12,31 @@ class TempFileManager(object):
         self._append_counter = self._get_argument(config, "append_counter")
         self._use_static_folder = self._get_argument(config, "use_static_folder")
         self._name_index = 0
-        self._tempFolder = str(pathlib.Path(self._get_argument(config, "directory")).absolute())
+        self._base_path = str(pathlib.Path(self._get_argument(config, "directory")).absolute()) + "/"
+        self._sub_path = None
         self._parent = None
-        self._prepareTempFolder()
+        self._prepare_temp_folder()
 
-    def _get_argument(self, config, key):
+    @staticmethod
+    def _get_argument(config, key):
         try:
             return config[key]
         except KeyError:
             raise RuntimeError("Required argument '"+key+"' not found in 'temp' configuration")
 
-    def _prepareTempFolder(self):
+    def _prepare_temp_folder(self):
         """
         sets up a temporary folder to store files and folders
         """
         self._prefix = self._static_temp_name if self._use_static_folder else \
             self._create_random_string(self._prefix_length)+("_" if self._append_counter else "")
-        pathlib.Path(self._tempFolder).mkdir(parents=True, exist_ok=True)
+        pathlib.Path(self._base_path).mkdir(parents=True, exist_ok=True)
 
     def get_prefix(self):
         return self._prefix
 
-    def _create_random_string(self, length):
+    @staticmethod
+    def _create_random_string(length):
         """
         Generates a random string of a given length,
         :param length: length of the string
@@ -48,25 +51,28 @@ class TempFileManager(object):
         :return: path to the folder
         :rtype string
         """
-        return self._tempFolder
+        return self._base_path
 
     def get_path_from_name(self, name):
         if ".." in name:
-            raise RuntimeError("Invalid name",name)
-        return self._tempFolder + "/" + name
+            raise RuntimeError("Invalid name", name)
+        return self._base_path + name
 
-    def reserveName(self):
+    def reserveName(self, additional=None):
         """
         Reserves a new unique name for a file or folder
+        :param additional: additional string to add to the name
         :return: the reserved name
         :rtype string
         """
         name = self._prefix
         if self._append_counter:
             name += str(self._name_index)
+        if additional is not None:
+            name += additional
 
         self._name_index += 1
-        return name
+        return self._sub_path + name
 
     def createTempFile(self):
         """
@@ -115,3 +121,13 @@ class TempFileManager(object):
     def file_exists(self, name):
         path = self.get_path_from_name(name)
         return os.path.isfile(path)
+
+    def set_sub_folder(self, sub_path):
+        """
+        Sets a sub path which will be prepended to all newly created names
+        :param sub_path: string subpath to prepend
+        """
+        self._sub_path = sub_path
+
+    def get_sub_folder(self):
+        return self._sub_path

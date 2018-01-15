@@ -106,7 +106,7 @@ class CommandlineGenie(GenieInterface):
         # FIXME instances are not added to scope
 
         id = arg['id']
-        if not isinstance(id,str):
+        if not isinstance(id, str):
             raise Exception("output argument id is not a string ")
         type = arg['type']
 
@@ -123,7 +123,7 @@ class CommandlineGenie(GenieInterface):
             # set value to image path
             data_type = self._type_system.get_type_by_name("image")
 
-            # if the creation info is not set explicitely by the user,
+            # if the creation info is not set explicitly by the user,
             # we reserve a name and expect to application to create the file
             if "creation" not in arg:
                 arg["creation"] = CreationInfo.to_string(CreationInfo.RESERVE)
