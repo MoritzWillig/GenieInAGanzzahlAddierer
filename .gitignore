@@ -1,5 +1,5 @@
 # Project specific
-extern
+external/*
 .idea
 
 config.json
