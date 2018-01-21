@@ -8,7 +8,7 @@ import json
 from collections import deque
 from os import listdir
 from os.path import isfile, join
-
+import platform
 
 class CommandlineGenie(GenieInterface):
 
@@ -36,11 +36,11 @@ class CommandlineGenie(GenieInterface):
         self._inputs = _inputs_map
         self._outputs = _outputs_map
 
-
-    def _select_by_attribute(self, data, name, value):
+    def _select_by_attribute(self, data, name, value = None):
+        check_existing = value is None
         result = []
         for item in data:
-            if (name in item) and (item[name] == value):
+            if (name in item) and (check_existing or (item[name] == value)):
                 result.append(item)
         return result
 
@@ -71,6 +71,21 @@ class CommandlineGenie(GenieInterface):
             raise Exception("evaluated argument is no string ")
 
         return result
+
+    def _process_filter_argument(self, arg, scope):
+        filter = arg['filter']
+        if not isinstance(filter, dict):
+            raise Exception("filter argument is not an dictionary")
+
+        passed_filters = True
+
+        if "os" in filter:
+            platform_name = platform.system().lower()
+            passed_filters = platform_name in filter["os"]
+
+        if not passed_filters:
+            arg['type'] = "plain"
+            arg['text'] = ""
 
     def _process_input_argument(self, arg, scope):
         id = arg['id']
@@ -147,7 +162,10 @@ class CommandlineGenie(GenieInterface):
         # copy arguments list to configure command line call
         wc = [a.copy() for a in self._additional["arguments"]]
 
-        # modify arguments (e.g. fill in in-/output paths)
+        # modify arguments (e.g. fill in in-/output paths, apply filters)
+        filters_ = self._select_by_attribute(wc, "filter")
+        deque(map(lambda arg: self._process_filter_argument(arg, scope), filters_))
+
         inputs_ = self._select_by_attribute(wc, "semantic", "in")
         outputs_ = self._select_by_attribute(wc, "semantic", "out")
         for output in outputs_:
@@ -155,8 +173,10 @@ class CommandlineGenie(GenieInterface):
         deque(map(lambda arg: self._process_input_argument(arg, scope), inputs_))
         deque(map(lambda arg: self._preprocess_output_argument(arg, scope), outputs_))
 
-        str_arguments = "".join(list(map(lambda arg: self._argument_to_string(arg), wc)))
+        arguments = list(map(lambda arg: self._argument_to_string(arg), wc))
+        str_arguments = "".join(arguments)
         return str_arguments, outputs_
+        # return arguments, outputs_
 
     def _read_output(self, argument_info):
         type = argument_info["origin_type"]
@@ -212,7 +232,7 @@ class CommandlineGenie(GenieInterface):
             print("command line: ", commandline_string)
             result = 0
         else:
-            return_code = call(commandline_string)
+            return_code = call(commandline_string, shell=True)
 
             result = self._read_outputs(return_code, commandline_info, scope)
             #TODO store result in session folder
