@@ -198,10 +198,23 @@ class CommandlineGenie(GenieInterface):
             "results": outputs
         }
 
-    def serve(self, input, scope):
-        commandline_string, commandline_info = self._build_command_line(input, scope)
-        return_code = call(commandline_string)
+    def serve(self, input, scope, arguments):
+        if arguments is None:
+            arguments = {}
 
-        result = self._read_outputs(return_code, commandline_info, scope)
-        #TODO store result in session folder
+        dev_mode = ("dev" in self._configuration) and ("enable" in self._configuration["dev"]) and (
+            self._configuration["dev"]["enable"])
+        simulate_run = dev_mode and ("__debug_print_commandline" in arguments)
+
+        commandline_string, commandline_info = self._build_command_line(input, scope)
+
+        if simulate_run:
+            print("command line: ", commandline_string)
+            result = 0
+        else:
+            return_code = call(commandline_string)
+
+            result = self._read_outputs(return_code, commandline_info, scope)
+            #TODO store result in session folder
+
         return result

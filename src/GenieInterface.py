@@ -36,11 +36,12 @@ class GenieInterface(object):
         pass
 
     @AbstractMethod
-    def serve(self, input, scope):
+    def serve(self, input, scope, parameters):
         """
 
         :param input:
         :param scope:
+        :param parameters: all parameters, as given by the http request (None or Map)
         :return: genie response
         :rtype: string
         """

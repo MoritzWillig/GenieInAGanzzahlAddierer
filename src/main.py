@@ -133,7 +133,7 @@ class Genie(object):
             try:
                 # all files created by the genie should be stored in the outputs directory
                 self._tempFileManager.set_sub_folder(session_sub_folder + "outputs/")
-                response = genie.serve(inputs, variable_scope)
+                response = genie.serve(inputs, variable_scope, request.args)
                 variable_scope.destroy()
                 return jsonify({"success": True, "response": response})
             except Exception as e:
