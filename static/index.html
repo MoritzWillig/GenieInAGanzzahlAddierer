@@ -10,11 +10,14 @@
 <body>
 
   <section class="titlebar">
+    Genie in a Ganzzahl Addierer
+  </section>
+  <!--
     <span class="tabs">
       <span class="active tab">Select images</span>
       <span class="tab">Result</span>
     </span>
-  </section>
+  </section>-->
 
   <section class="imgcompare row">
     <section class="w6">
@@ -48,8 +51,14 @@
     </section>
   </section>
 
-  <section class="btn-wrapper">
-    <button class="startAnalysis">Start analysis!</button>
+  <section class="btn-wrapper" style="display: none;">
+    <button class="startAnalysis">Start morphing!</button>
+  </section>
+
+  <section class="result-wrapper" style="display: none;">
+    <div>An image morphing attack has been detected between the image <i>above</i> and to the <i>right</i>.</div>
+    <img class="result" src="api/uploads/average.png">
+    <div>An image morphing attack has been detected between the image <i>above</i> and to the <i>left</i>.</div>
   </section>
 
   <section class="gallery hidden">

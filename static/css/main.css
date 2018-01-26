@@ -30,6 +30,8 @@ body {
   box-shadow: 0 0 .5em #666;
   margin-bottom: 1em;
   text-align: center;
+  font-weight: 100;
+  font-size: 1.25em;
 }
 
   .titlebar .tabs .tab {
@@ -117,6 +119,28 @@ body {
   display: inline-block;
   width: 100%;
   padding: 1em;
+}
+
+.result-wrapper {
+  text-align: center;
+}
+
+.result-wrapper div {
+  display: block;
+  width: 30%;
+  margin: 5em 3% 3% 3%;
+  float: left;
+  border: 5px dashed #aa0000;
+  padding: 1em;
+}
+
+.result-wrapper img {
+  float: left;
+  width: 20%;
+  border-top: 3px solid #ea6b26;
+  border-bottom: 3px solid #ea6b26;
+  margin-top: 1em;
+  margin-bottom: 2em;
 }
 
 .gallery {

@@ -4,6 +4,9 @@ from os import listdir
 from os.path import isfile, join
 import json
 import re
+import random
+import string
+from subprocess import call
 
 from src.datatypes.CreationInfo import CreationInfo
 from src.datatypes.FileFolder.FileFolderType import FileFolderType
@@ -222,7 +225,8 @@ class Genie(object):
             for file in request.files.getlist('file'):
                 if input_id in inputs["mapping"].keys():
                     #TODO allow overwriting input ids
-                    raise RuntimeError("Input id '"+input_id+"' was already uploaded")
+                    pass
+                    #return jsonify({"success": False, "message": "Input id '"+input_id+"' was already uploaded"})
 
                 self._tempFileManager.set_sub_folder(session_sub_folder + "inputs/")
                 # add session counter to name to prevent name clashes on server restart
@@ -250,6 +254,41 @@ class Genie(object):
             if folder_name is None:
                 return jsonify({"success": False, "message": "session does not exist"})
             return send_from_directory(self._tempFileManager.get_temp_folder() + "/" + folder_name + "/" + "outputs/", data_id)
+
+        @self.app.route('/api/upload/', methods=["POST"])
+        def serve_upload():
+            filenames = []
+            for file in request.files.getlist('file'):
+                if not file or not valid_file_extension(file.filename):
+                    return jsonify({"success": False, "error": 'Invalid file type.'})
+                else:
+                    filename = randomword(16) + '.' + file.filename.rsplit('.', 1)[1]
+                    filenames.append(filename)
+                    file.save("./uploads/" + filename)
+
+            return jsonify({"success": True, "filenames": filenames})
+
+        @self.app.route('/api/uploads/<filename>', methods=["GET"])
+        def serve_uploads(filename):
+            return send_from_directory("./uploads/", filename)
+
+        @self.app.route('/api/call/<filenameA>/<filenameB>', methods=["GET"])
+        def serve_call(filenameA, filenameB):
+            call('rm ./workspace/*', shell=True)
+            call('cp ./uploads/' + filter_filename(filenameA) + ' ./workspace/', shell=True)
+            call('cp ./uploads/' + filter_filename(filenameB) + ' ./workspace/', shell=True)
+            call('python /home/marco/tud/AmbientIntelligence/face_morpher/facemorpher/averager.py --images=./workspace --out=./uploads/average.png', shell=True)
+            return jsonify({"success": True})
+
+        def randomword(length):
+           letters = string.ascii_lowercase
+           return ''.join(random.choice(letters) for i in range(length))
+
+        def filter_filename(filename):
+            # if ("." in session_name) or ("/" in session_name):
+            if re.match("[A-Za-z0-9]+.(png|jpg|jpeg|gif)$", filename):
+                return filename
+            return "default"
 
         def valid_file_extension(filename):
             ALLOWED_EXTENSIONS = ['png', 'jpg', 'jpeg', 'gif']

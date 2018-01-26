@@ -1,43 +1,23 @@
 {
-  "info": "image_color.py",
+  "info": "averager.py",
   "arguments": [
     {
       "type": "plain",
-      "text": "python ./demo/image_color.py"
+      "text": "python /home/marco/tud/AmbientIntelligence/face_morpher/facemorpher/averager.py --images=./images/ --out=average.png"
     },
     {
-      "type": "plain",
-      "text": " -in="
-    },
-    {
-      "id": "source",
+      "id": "source1",
       "type": "image",
       "semantic": "in",
       "creation": "existing",
-      "caption": "Source"
+      "caption": "Source 1"
     },
     {
-      "type": "plain",
-      "text": " -out="
-    },
-    {
-      "id": "results",
-      "type": "image_folder",
-      "semantic": "out",
-      "caption": "Results"
-    },
-    {
-      "type": "plain",
-      "text": " -num="
-    },
-    {
-      "id": "num_images",
-      "type": "int",
+      "id": "source2",
+      "type": "image",
       "semantic": "in",
-      "min": 1,
-      "max": 60,
-      "default": 4,
-      "caption": "Number of images"
+      "creation": "existing",
+      "caption": "Source 2"
     }
   ]
 }
