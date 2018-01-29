@@ -31,6 +31,9 @@ class ImageInstance(DataInstance):
         else:
             raise RuntimeError("not reachable")
 
+    def get_path(self):
+        return self._temp_file_manager.get_path_from_name(self._fileName)
+
     def _do_destroy(self):
         if self._fileName is not None and self._owned:
             self._temp_file_manager.deleteFile(self._fileName)

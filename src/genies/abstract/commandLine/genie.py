@@ -1,4 +1,4 @@
-from src.GenieInterface import  GenieInterface
+from src.GenieInterface import GenieInterface
 from src.helpers.AbstractMethod import AbstractMethod
 from subprocess import call
 from src.datatypes.Boolean import BooleanType
@@ -9,6 +9,7 @@ from collections import deque
 from os import listdir
 from os.path import isfile, join
 import platform
+
 
 class CommandlineGenie(GenieInterface):
 
@@ -36,7 +37,7 @@ class CommandlineGenie(GenieInterface):
         self._inputs = _inputs_map
         self._outputs = _outputs_map
 
-    def _select_by_attribute(self, data, name, value = None):
+    def _select_by_attribute(self, data, name, value=None):
         check_existing = value is None
         result = []
         for item in data:
@@ -63,7 +64,7 @@ class CommandlineGenie(GenieInterface):
         type = arg["type"]
 
         if type != "plain":
-            raise Exception("only 'plain' arguments supported, but type was '"+type+"'")
+            raise Exception("only 'plain' arguments supported, but type was '" + type + "'")
 
         result = arg["text"]
 
@@ -185,10 +186,15 @@ class CommandlineGenie(GenieInterface):
             raise Exception("plain is no output type")
         elif type == "image":
             raise NotImplementedError("Output reader for type 'image' is not implemented")
-            #FIXME read file name
+            # FIXME read file name
         elif type == "image_folder":
-            folder = argument_info['text']+"/"
-            data = [f for f in listdir(folder) if isfile(join(folder, f))]
+            folder = argument_info['text'] + "/"
+            data_type = self._type_system.get_type_by_name("image_folder")
+            folder_instance = data_type.create_instance_with_config(folder, {
+                "creation": CreationInfo.to_string(CreationInfo.EXISTING)})
+            folder_name = folder_instance.get_folder_name()
+
+            data = [folder_name+"/"+f for f in listdir(folder) if isfile(join(folder, f))]
         elif type == "int":
             raise Exception("int is no output type")
         elif type == "boolean":
@@ -235,6 +241,6 @@ class CommandlineGenie(GenieInterface):
             return_code = call(commandline_string, shell=True)
 
             result = self._read_outputs(return_code, commandline_info, scope)
-            #TODO store result in session folder
+            # TODO store result in session folder
 
         return result

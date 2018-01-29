@@ -35,6 +35,12 @@ class FileFolderInstance(DataInstance):
     def get_path(self):
         return self._temp_file_manager.get_path_from_name(self._folderName)
 
+    def get_folder_name(self):
+        path = self.get_path()
+        if path[-1] == "/":
+            path = path[:-1]
+        return os.path.basename(path)
+
     def _do_destroy(self):
         if self._folderName is not None and self._owned:
             self._temp_file_manager.deleteFolder(self._folderName)
