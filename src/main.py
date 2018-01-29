@@ -7,6 +7,7 @@ import re
 
 from src.datatypes.CreationInfo import CreationInfo
 from src.datatypes.FileFolder.FileFolderType import FileFolderType
+from src.fileManager.FileManipluator import FileManipulator
 from src.fileManager.FolderManipulator import FolderManipulator
 from src.fileManager.TempFileManager import TempFileManager
 from src.datatypes.TypeSystem import TypeSystem
@@ -220,11 +221,15 @@ class Genie(object):
             # store input files
             # FIXME implement (configurable) upload limit/constraints
             for file in request.files.getlist('file'):
-                if input_id in inputs["mapping"].keys():
-                    #TODO allow overwriting input ids
-                    raise RuntimeError("Input id '"+input_id+"' was already uploaded")
-
                 self._tempFileManager.set_sub_folder(session_sub_folder + "inputs/")
+                if input_id in inputs["mapping"].keys():
+                    # delete old upload
+                    filename = inputs["mapping"][input_id]
+                    filepath = self._tempFileManager.get_path_from_name(filename)
+
+                    file_manipulator = FileManipulator(filepath)
+                    file_manipulator.delete()
+
                 # add session counter to name to prevent name clashes on server restart
                 # TODO _tempFileManager should save counters per directory
                 filename = self._tempFileManager.reserveName("_"+str(inputs["count"]))
