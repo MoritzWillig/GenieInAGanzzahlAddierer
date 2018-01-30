@@ -1,24 +1,36 @@
 # GenieInAGanzzahlAddierer
 
-![Genie Eye Logo](./static/media/images/eye.png "Genie Eye Logo")
+![Genie Eye Logo](https://github.com/MoritzWillig/GenieInAGanzzahlAddierer/raw/master/static/media/images/eye.png "Genie Eye Logo")
 
 This software project helps to provide basic user interfaces for console applications.
 
 
 ## Quick start
-This projects provides a CommandLineGenie class, which is capable of calling arbitrary commandline scripts. It should provide enough functionality to run most command-line binaries. For more complex tasks, writing a customized Genie is the other, more advanced, option. Writing your own genie gives you full control of the assembly and execution of the final commandline. A detailed description can be found under {Software overview / Genies}. To create an UI for simple command-line tools follow the steps below.
+This projects provides a CommandLineGenie class, which is capable of calling arbitrary commandline scripts. It should provide enough functionality to handle most command-line binaries. For more complex tasks, writing a customized Genie is the other, more advanced, option. Writing your own genie gives you full control of the assembly and execution of the final commandline. A detailed description can be found under {Software overview / Genies}. Follow the steps below, to quickly setup the project and create a first UI for simple command-line tools.
 
-## 0. install dependencies
+## 0. install dependencies and setup the configuration
 ```
 pip install flask
 ```
-``numpy Pillow`` are required for the demo script under `demo/`
- 
+``numpy Pillow`` are required to run example code requiring the demo script under `demo/`
+
+### 0.1 configuration
+The configuration file `config.json` has to be located in the root project folder. An already existing example configuration file `config.sample.json` can be copied and/or renamed. By default most settings should be left unchanged. Custom genies can be added with a new entry to the `genies`-attribute. This step is shown in {2. register the genie}. Definitions of unused genies can be removed from the list or diabled by adding `"ignore": true` to the particual configuration entry.
+
+For developement and debugging the following lines can be added to get more verbose logging information:
+```
+"dev": {
+  "enable": true
+}
+```
 ## 1. create a new genie
 
-Create a new `my_genie_name.json` file under `configurations/` (or copy the already existing `format.json`). Edit the `info`-attribute to describe your genie in short. The commandline that will be called by the genie will for each request is assembled from the `arguments`-attribute. To adjust the `arguments`-attribute to match your commandline tool, see the {Software overview / Data Types} section. The system will automatically manage in- and output files and/or folders.
+Create a new `my_genie_name.json` file under `configurations/` (or copy the already existing `format.json`). Edit the `info`-attribute to describe your genie in short. The commandline, that will be called for each request by the genie, is assembled from the `arguments`-list. To adjust the `arguments`-attribute to match your commandline tool, see the {Software overview / Data Types} section. Each block in the list is preprocessed by the genie and then appended to the commandline string. The system will automatically manage the creation of in- and output files and folders for you.
+* **Warning**: Currently there is no authentification required and no limitation is made in terms of the number of existing sessions. We therefore strong advice you to add a custom authentification method or othwise **do not open the server to public networks**.
+* **Warning**: The web server, by default, only listens to localhost. If you, for any reason, decide to open the server for public access, make sure that all active genies only **work with binaries, without any known vulnerabilities**.
+* **Warning**: Some user inputs, like e.g. file names, are automatically sanitized by the software. There is however no way to automatically perform a semantic check of the input values. If you have an input parameter, that, for example, determines the number of resulting pictures, you should define an upper limit, by adding a `max`-attribute to your parameter definition. All data types support those kind **filters and bounds checks to sanitize the user input** and keep your system safe and working.
 
-Each block has to contain a `type` attribute and type specific attributes. Most commandlines should start with a `plain` block, which defines the binary to be executed: 
+Each block has to contain a `type` attribute followed by type specific attributes. Most commandlines should start with a `plain` block, which defines the binary to be executed: 
 ```
 {
   "type": "plain",
@@ -39,25 +51,25 @@ A list of input and output arguments typically follows:
   "creation": "existing"
 }
 ```
-Input or output arguments a characterized by adding an `semantic`-attribute set to `in` or `out`. For each of these, a unique `id` has to be set. These ids are used by the API when sending input values or files, or when serving output files. The `creation` attribute is specific to the image type (see {Software overview / Data Types / Image}). Most common types, like `boolean`, `int`, `file_folder` are already implemented. Look into the code and/or documentation to see the type specific attributes that can be added, to e.g. perform input checks (for example allow only `min: 1` and `max: 10`).
+Input or output arguments are characterized by adding a `semantic`-attribute set to `in` or `out`. For each of these, a unique `id` has to be set. These ids are used by the API when sending input values or files, or when serving output files. The `creation` attribute is specific to the image type (see {Software overview / Data Types / Image}) and states, that the file is expected to be provided by the user (-> no automatic creation by the system). Most common types, like `boolean`, `int`, `file_folder` are already implemented. Look into the code and/or documentation to see the type specific attributes that can be added, to e.g. perform input checks (for example allow only `min: 1` and `max: 10` for integers).
 
-### 1.2 Filters
+### 1.2 System specific command lines
 
-If os specific parts are required for the commandline, a `filter`-attribute can be added: 
+If OS specific parts are required for the commandline, a `filter`-attribute can be added to include certain blocks for some operating systems only:
 ```
 {
   "type": "plain",
-  "text": "-argument_for_windows",
+  "text": "-special_windows_specific_flag",
   "filter": {
     "os": "windows"
   }
 }
 ```
-The strings will be matches against `platform.system()`. Allowed values are e.g. `windows`, `linux`, `java`.
+The `os`-string will be matched against `platform.system()`. Allowed values are therefore `windows`, `linux`, `java`.
 
-## 2. register genie
+## 2. register the genie
 
-Add a new entry to `arguments` in the `config.json`. 
+Add a new entry to the `genies`-list in the `config.json`. 
 ```
 {
   "name": "my_genie_name",
@@ -65,12 +77,12 @@ Add a new entry to `arguments` in the `config.json`.
   "configuration": "configurations/my_genie_name.json"
 }
 ```
-* `name` is the name under which the genie will be exposed through the API.
-* `genie` is the genie to load. The genies will be loaded from `src\genies` (See {Software overview / Genies} for a detailed description). Use `abstract.commandLine` for the generic commandline genie or any of your custom genies.
-* `configuration` - a custom configuration file to pass to the genie.
+* `name` is the name under which the genie will be exposed by the API.
+* `genie` is the genie name to load. The genies will be loaded from `src/genies` (See {Software overview / Genies} for a detailed description). Use `abstract.commandLine` for the generic commandline genie, or the name of any of your custom genies.
+* `configuration` - the custom configuration file created in step {1. create a new genie} to setup the genie.
 
 ## API
-The software provides an json - API interface for session management and executing genie actions. Each genie action requested operates inside a session folder, managed by the software. Upon requesting a genie action for a session, using `/genie/<genie_name>/request/<session_name>`, a check for the presense of all required arguments is performed. The required arguments for each genie can be requested via `/genie/<genie_name>/interface`. The result of the request contains a status code and additional information dependent on the specific genie (e.g. available output files). Output files can then be requested via `/session/<session_name>/serve/<data_id>`.
+The software provides an json-API interface for session management and executing genie actions. Each requested genie action operates inside a session folder which is managed by the software. Upon requesting a genie action for a session, using `/genie/<genie_name>/request/<session_name>`, a presence check for all required arguments is performed. The required arguments for each genie can be requested via `/genie/<genie_name>/interface`. The result of the request contains a status code and additional information dependent on the specific genie (e.g. available output files). Output files can then be requested via `/session/<session_name>/serve/<data_id>`.
 
 ### user interface
 * **static files**  
@@ -105,12 +117,10 @@ The software provides an json - API interface for session management and executi
   
 * **request an output file / parameter**  
   URL: `/session/<session_name>/serve/<data_id>`  
-  
-  This API call parses and directly passes the argument to the genie by value. For passing files, use `/session/<session_name>/upload/<input_id>`!
 
-```
-{ "response": { "error": 0, "request": "user_static", "results": { "results": { "data": [ "user_static/000.png", "user_static/001.png", "user_static/002.png", "user_static/003.png" ], "type": "image_folder" } } }, "success": true } 
-```
+  Serves the output files or values of an genie action.
+  **Notice** that, unlike all other API-requests, this API-call serves raw data, and therefore is not in JSON format. Resulting output files, like images, can be directly included into websites this way.
+
 
 ### Genies
 * **interface**  
@@ -133,8 +143,25 @@ The software provides an json - API interface for session management and executi
 * **request a genie action**  
   URL: `/genie/<genie_name>/request/<session_name>`  
   Parameters: GET/POST: input parameters for the genie  
-  
-  Performs a genie action on the session. Notice that, unlike all other API-requests, the result is not in JSON format. Resulting output files, like images, can be directly served this way.
+
+  This API call parses and directly passes the argument to the genie by value. For passing files, use `/session/<session_name>/upload/<input_id>`!  
+  result upon success:  
+```
+{
+  "response": {
+    "error": 0,
+    "request": "<session_name>",
+    "results": {
+      "results": {
+        "type": "image_folder",
+        "data": [ "user_static/000.png", "user_static/001.png"]
+      }
+    }
+  },
+  "success": true
+}
+```
+
 
 ## Software overview
 
