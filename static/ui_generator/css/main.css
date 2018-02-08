@@ -1,0 +1,45 @@
+* {
+    box-sizing: border-box;
+}
+
+body {
+    padding: 0px;
+    margin: 0px;
+}
+
+.layout_element {
+    padding: 10pt;
+}
+
+.menu {
+    width: 15%;
+    float: left;
+    background-color: greenyellow;
+    min-height: 400px;
+}
+
+.main {
+    position: relative;
+    width: 50%;
+    float: left;
+    background-color: green;
+    min-height: 400px;
+}
+
+.result {
+    width: 35%;
+    float: left;
+    background-color: black;
+    color: white;
+    min-height: 400px;
+}
+
+.clickable {
+    cursor: pointer;
+    text-decoration: underline;
+}
+
+.result_image {
+    max-width: 200px;
+    max-height: 200px;
+}

@@ -171,6 +171,16 @@ class Genie(object):
             folder = FolderManipulator(instance.get_path())
             return folder
 
+        @self.app.route('/session/<session_name>/exists', methods=["GET"])
+        def serve_session_exists(session_name):
+            session_folder = _load_session(session_name)
+            exists = session_folder is not None
+            return jsonify({
+                "success": True,
+                "exists": exists
+            })
+
+
         @self.app.route('/session/create', methods=["GET"])
         def serve_session_create():
             # clear sub folder from any previous session paths
