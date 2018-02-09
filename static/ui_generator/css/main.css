@@ -11,16 +11,9 @@ body {
     padding: 10pt;
 }
 
-.menu {
-    width: 15%;
-    float: left;
-    background-color: greenyellow;
-    min-height: 400px;
-}
-
 .main {
     position: relative;
-    width: 50%;
+    width: 65%;
     float: left;
     background-color: green;
     min-height: 400px;

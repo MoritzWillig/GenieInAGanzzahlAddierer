@@ -63,6 +63,13 @@ class Genie(object):
                 "outputs:": genie.get_outputs()
             })
 
+        @self.app.route('/genie/list', methods=["GET"])
+        def serve_genie_list():
+            if request.method != 'GET':
+                return jsonify({"success": False, "error": 'Invalid request.'})
+
+            return jsonify({"success": True, "genies": list(self._genies.keys())})
+
         @self.app.route('/genie/<genie_name>/request/<session_name>', methods=["GET"])
         def serve_genie_request(genie_name, session_name):
             if request.method != 'GET':

@@ -79,8 +79,29 @@ function init() {
     param_form = document.getElementById("param_form");
     result_form = document.getElementById("result_form");
     load_loading_form(); //FIXME load loading form ...
-    setup_session(function() {
-        load_greeter_form();
+
+    let session_promise = new Promise(function(resolve, reject) {
+        setup_session(function() {
+            resolve()
+        });
+    });
+    let genies_promise = new Promise(function (resolve, reject) {
+        perform_ajax("/genie/list", undefined, "get", true).then(function (data) {
+            try {
+                if (data.success !== true) {
+                    load_error_form(data);
+                }
+
+                resolve(data.genies);
+            } catch(e) {
+                load_error_form(data);
+                reject();
+            }
+        })
+    });
+
+    Promise.all([session_promise, genies_promise]).then(function(values) {
+        load_greeter_form(values[1]);
     });
 }
 
@@ -132,7 +153,6 @@ function create_session(callback) {
             }
 
             save_session_name(data.session);
-
         } catch (e) {
             load_error_form("malformed response: " + data.toString());
         }
@@ -165,20 +185,48 @@ function load_loading_form() {
     `;
 }
 
-function load_greeter_form() {
+function load_greeter_form(genies) {
     param_form.innerHTML = `
-        Hi :D
+        <b>Available Genies:</b><br>
+        <ul>
+    `+genies.map(x => "<li class='clickable' onclick='load_genie_form(\""+x+"\")'>"+x+"</li>").join("<br>")+`
+        </ul>
     `;
 }
 
 function load_error_form(message) {
-    param_form.innerText = message;
+    param_form.innerText = "Error: " + message;
 }
 
 function load_create_form() {
     param_form.innerHTML = `
                 <button onclick="create_form_action()">CREATE</button>
             `;
+}
+
+function load_genie_form(genie) {
+    param_form.innerHTML = "<h2>"+genie+"</h2>";
+
+    perform_ajax("/genie/"+genie+"/interface",undefined,"get",true).then(function(data) {
+        console.log(data);
+
+        param_form.innerHTML="";
+        let caption = document.createElement("h2");
+        caption.innerText = genie;
+        let ui_elements = assemble_genie_ui(genie, data);
+
+        param_form.appendChild(caption);
+        for (let element in ui_elements) {
+            console.log(">>",ui_elements[element]);
+            param_form.appendChild(ui_elements[element]);
+        }
+
+        let button = document.createElement("button");
+        button.innerText = "Run";
+        param_form.appendChild(button);
+    }).catch(function(data) {
+        param_form.innerHTML+="error: "+data.toString();
+    });
 }
 
 function load_upload_form() {
@@ -225,15 +273,55 @@ function load_serve_form() {
 
 /// ACTIONS ///
 
+function assemble_genie_ui(genie_name, genie_interface) {
+    let ui_elements = [];
+
+    for (let input_name in genie_interface.inputs) {
+        let input_type = genie_interface.inputs[input_name];
+
+        let data = {
+            "caption": input_name, //TODO
+            "description": undefined, //TODO
+            "defaultValue": undefined //TODO
+        };
+
+        let ui_element;
+        switch (input_type) {
+            case "bool":
+                break;
+            case "int":
+                let data_type = new IntDataType();
+                ui_element = data_type.generateGUIElement(data);
+                break;
+            case "string":
+                break;
+            case "float":
+                break;
+            case "image":
+                break;
+            case "image_folder":
+                break;
+            case "file":
+                break;
+            case "file_folder":
+                break;
+        }
+
+        if (ui_element === undefined) {
+            let data_type = new UnkownDataType();
+            ui_element = data_type.generateGUIElement(data);
+        }
+
+        ui_elements.push(ui_element);
+    }
+
+    return ui_elements;
+}
+
 function perform_dump_api_request(url, arg, request_type) {
     perform_ajax(url, arg, request_type).always(function(responseText) {
         result_form.innerHTML = responseText;
     });
-
-}
-
-function create_form_action() {
-    perform_dump_api_request("http://127.0.0.1:5000/session/create", undefined, "get")
 }
 
 function request_form_action() {
