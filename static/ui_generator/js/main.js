@@ -216,13 +216,18 @@ function load_genie_form(genie) {
         let ui_elements = assemble_genie_ui(genie, data);
 
         param_form.appendChild(caption);
-        for (let element in ui_elements) {
-            console.log(">>",ui_elements[element]);
-            param_form.appendChild(ui_elements[element]);
+        console.log(ui_elements);
+        for (let type_element_str in ui_elements) {
+            let type_element = ui_elements[type_element_str];
+            for (let element in type_element) {
+                param_form.appendChild(type_element[element]);
+            }
+            param_form.appendChild(document.createElement("br"));
         }
 
         let button = document.createElement("button");
         button.innerText = "Run";
+        param_form.appendChild(document.createElement("br"));
         param_form.appendChild(button);
     }).catch(function(data) {
         param_form.innerHTML+="error: "+data.toString();
@@ -274,30 +279,31 @@ function load_serve_form() {
 /// ACTIONS ///
 
 function assemble_genie_ui(genie_name, genie_interface) {
-    let ui_elements = [];
+    let ui_elements = {};
 
     for (let input_name in genie_interface.inputs) {
         let input_type = genie_interface.inputs[input_name];
 
         let data = {
+            "name": input_name,
             "caption": input_name, //TODO
             "description": undefined, //TODO
             "defaultValue": undefined //TODO
         };
 
-        let ui_element;
+        let data_type;
         switch (input_type) {
             case "bool":
                 break;
             case "int":
-                let data_type = new IntDataType();
-                ui_element = data_type.generateGUIElement(data);
+                data_type = new IntDataType();
                 break;
             case "string":
                 break;
             case "float":
                 break;
             case "image":
+                data_type = new ImageDataType();
                 break;
             case "image_folder":
                 break;
@@ -307,12 +313,20 @@ function assemble_genie_ui(genie_name, genie_interface) {
                 break;
         }
 
+        let ui_element = data_type.generateGUIElement(data);
         if (ui_element === undefined) {
             let data_type = new UnkownDataType();
             ui_element = data_type.generateGUIElement(data);
         }
 
-        ui_elements.push(ui_element);
+        let container = document.createElement("div");
+        container.classList.add("dev_argument_container");
+        container.appendChild(ui_element);
+
+        if (!(input_type in ui_elements)) {
+            ui_elements[input_type]=[];
+        }
+        ui_elements[input_type].push(container);
     }
 
     return ui_elements;

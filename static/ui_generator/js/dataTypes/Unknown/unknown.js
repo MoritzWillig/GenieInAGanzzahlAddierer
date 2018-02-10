@@ -3,7 +3,7 @@ function UnkownDataType() {
 
 }
 
-UnkownDataType.prototype = Object.create(DataType);
+UnkownDataType.prototype = Object.create(DataType.prototype);
 
 UnkownDataType.prototype.generateGUIElement = function generateGUIElement(argument) {
     let caption = (argument.caption===undefined)?"Unkown":argument.caption;

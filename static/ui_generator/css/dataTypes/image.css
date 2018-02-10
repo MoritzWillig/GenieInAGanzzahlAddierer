@@ -1,0 +1,18 @@
+
+.image_datatype progress {
+    width: 100%;
+}
+
+.image_datatype_placeholder {
+    width: 320px;
+    height: 180px;
+
+    background-color: rgba(255, 255, 255, 0.2);
+    margin:5px;
+
+    text-align: center;
+    color:#fff;
+
+    margin-left: auto;
+    margin-right: auto;
+}

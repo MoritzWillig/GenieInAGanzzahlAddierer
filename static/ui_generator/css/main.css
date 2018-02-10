@@ -36,3 +36,8 @@ body {
     max-width: 200px;
     max-height: 200px;
 }
+
+.dev_argument_container {
+    border: 1px solid black;
+    display: inline-block;
+}
