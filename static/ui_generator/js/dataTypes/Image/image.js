@@ -109,10 +109,8 @@ ImageDataType.prototype.generateGUIElement = function generateGUIElement(argumen
     };
 
     // open file chooser on click
-    filedrop.onclick = function (e) {
-        if (e.target !== capturebutton) {
-            filechooser.click();
-        }
+    placeholder.onclick = function () {
+        filechooser.click();
     };
 
     return filedrop;
